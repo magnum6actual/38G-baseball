@@ -57,6 +57,31 @@ export async function chat(
 }
 
 /**
+ * Stream a message to Claude and yield text chunks
+ */
+export async function* chatStream(
+  messages: ChatMessage[],
+  systemPrompt: string,
+  maxTokens: number = 4096
+): AsyncGenerator<string, void, unknown> {
+  const stream = client.messages.stream({
+    model: MODEL_NAME,
+    max_tokens: maxTokens,
+    system: systemPrompt,
+    messages: messages.map(m => ({
+      role: m.role,
+      content: m.content,
+    })),
+  });
+
+  for await (const event of stream) {
+    if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+      yield event.delta.text;
+    }
+  }
+}
+
+/**
  * Generate a summary for an officer profile
  */
 export async function generateOfficerSummary(officerData: string): Promise<string> {

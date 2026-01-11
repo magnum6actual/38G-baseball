@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -61,16 +62,18 @@ export default function SearchPage() {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [officers, setOfficers] = useState<OfficerResult[]>([]);
+  const [streamingContent, setStreamingContent] = useState('');
+  const [primaryTeam, setPrimaryTeam] = useState<OfficerResult[]>([]);
+  const [alsoMentioned, setAlsoMentioned] = useState<OfficerResult[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [selectedOfficer, setSelectedOfficer] = useState<OfficerDetail | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom when messages change
+  // Auto-scroll to bottom when messages change or streaming content updates
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, [messages, streamingContent]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,6 +83,7 @@ export default function SearchPage() {
     setInput('');
     setMessages((prev) => [...prev, { role: 'user', content: userMessage }]);
     setIsLoading(true);
+    setStreamingContent('');
 
     try {
       const response = await fetch('/api/chat/search', {
@@ -96,20 +100,61 @@ export default function SearchPage() {
         throw new Error(error.error || 'Search failed');
       }
 
-      const data = await response.json();
+      // Handle SSE stream
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error('No response body');
 
-      setConversationId(data.conversationId);
-      setMessages((prev) => [
-        ...prev,
-        { role: 'assistant', content: data.response },
-      ]);
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let fullContent = '';
 
-      // Update officers list
-      if (data.officers && data.officers.length > 0) {
-        setOfficers(data.officers);
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+
+        // Process complete SSE messages
+        const lines = buffer.split('\n\n');
+        buffer = lines.pop() || ''; // Keep incomplete message in buffer
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = JSON.parse(line.slice(6));
+
+            switch (data.type) {
+              case 'conversationId':
+                setConversationId(data.conversationId);
+                break;
+              case 'text':
+                fullContent += data.content;
+                setStreamingContent(fullContent);
+                break;
+              case 'officers':
+                if (data.primaryTeam) {
+                  setPrimaryTeam(data.primaryTeam);
+                }
+                if (data.alsoMentioned) {
+                  setAlsoMentioned(data.alsoMentioned);
+                }
+                break;
+              case 'done':
+                // Replace streaming content with final prose response (RANKED_IDS removed)
+                setStreamingContent('');
+                setMessages((prev) => [
+                  ...prev,
+                  { role: 'assistant', content: data.proseResponse },
+                ]);
+                break;
+              case 'error':
+                throw new Error(data.error);
+            }
+          }
+        }
       }
     } catch (error) {
       console.error('Search error:', error);
+      setStreamingContent('');
       setMessages((prev) => [
         ...prev,
         {
@@ -152,15 +197,16 @@ export default function SearchPage() {
         content: "Welcome to 38G Talent Search. I can help you find Military Government Specialists for your mission. Describe the skills, experience, languages, or qualifications you're looking for, and I'll search our talent database.",
       },
     ]);
-    setOfficers([]);
+    setPrimaryTeam([]);
+    setAlsoMentioned([]);
     setConversationId(null);
   };
 
   return (
-    <div className="flex h-[calc(100vh-8rem)]">
+    <div className="flex h-[calc(100vh-8rem)] overflow-hidden">
       {/* Chat Panel - Left Side */}
-      <div className="flex-1 flex flex-col border-r">
-        <div className="p-4 border-b bg-muted/50 flex items-center justify-between">
+      <div className="flex-1 flex flex-col border-r min-w-0 overflow-hidden">
+        <div className="p-4 border-b bg-muted/50 flex items-center justify-between flex-shrink-0">
           <div>
             <h2 className="font-semibold">Talent Search</h2>
             <p className="text-sm text-muted-foreground">
@@ -175,7 +221,7 @@ export default function SearchPage() {
         </div>
 
         {/* Messages */}
-        <ScrollArea className="flex-1 p-4">
+        <div className="flex-1 overflow-y-auto p-4">
           <div className="space-y-4">
             {messages.map((message, index) => (
               <div
@@ -191,25 +237,38 @@ export default function SearchPage() {
                       : 'bg-muted'
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                  {message.role === 'user' ? (
+                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                  ) : (
+                    <div className="text-sm prose prose-sm prose-neutral dark:prose-invert max-w-none prose-p:my-1 prose-headings:my-2 prose-ul:my-1 prose-li:my-0 prose-table:text-xs prose-th:px-2 prose-th:py-1 prose-td:px-2 prose-td:py-1">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-muted rounded-lg px-4 py-3">
-                  <p className="text-sm text-muted-foreground flex items-center gap-2">
-                    <span className="animate-pulse">Searching the talent database...</span>
-                  </p>
+                <div className="bg-muted rounded-lg px-4 py-3 max-w-[80%]">
+                  {streamingContent ? (
+                    <div className="text-sm prose prose-sm prose-neutral dark:prose-invert max-w-none prose-p:my-1 prose-headings:my-2 prose-ul:my-1 prose-li:my-0 prose-table:text-xs prose-th:px-2 prose-th:py-1 prose-td:px-2 prose-td:py-1">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{streamingContent}</ReactMarkdown>
+                      <span className="inline-block w-2 h-4 bg-primary animate-pulse ml-1" />
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground flex items-center gap-2">
+                      <span className="animate-pulse">Searching the talent database...</span>
+                    </p>
+                  )}
                 </div>
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
-        </ScrollArea>
+        </div>
 
         {/* Input */}
-        <form onSubmit={handleSubmit} className="p-4 border-t">
+        <form onSubmit={handleSubmit} className="p-4 border-t flex-shrink-0">
           <div className="flex gap-2">
             <Input
               value={input}
@@ -225,19 +284,19 @@ export default function SearchPage() {
         </form>
       </div>
 
-      {/* Results Panel - Right Side */}
-      <div className="w-96 flex flex-col bg-muted/30">
-        <div className="p-4 border-b bg-muted/50">
+      {/* Results Panel - Right Side (fixed position, doesn't scroll with chat) */}
+      <div className="w-96 flex-shrink-0 flex flex-col bg-muted/30 overflow-hidden">
+        <div className="p-4 border-b bg-muted/50 flex-shrink-0">
           <h2 className="font-semibold">Results</h2>
           <p className="text-sm text-muted-foreground">
-            {officers.length > 0
-              ? `${officers.length} candidates found`
+            {primaryTeam.length > 0
+              ? `${primaryTeam.length} recommended${alsoMentioned.length > 0 ? `, ${alsoMentioned.length} also referenced` : ''}`
               : 'Matching candidates will appear here'}
           </p>
         </div>
 
-        <ScrollArea className="flex-1 p-4">
-          {officers.length === 0 ? (
+        <div className="flex-1 overflow-y-auto p-4">
+          {primaryTeam.length === 0 && alsoMentioned.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <p className="text-sm">No search results yet</p>
               <p className="text-xs mt-1">
@@ -246,7 +305,8 @@ export default function SearchPage() {
             </div>
           ) : (
             <div className="space-y-3">
-              {officers.map((officer) => (
+              {/* Primary Team */}
+              {primaryTeam.map((officer) => (
                 <Card
                   key={officer.id}
                   className="cursor-pointer hover:bg-accent/50 transition-colors"
@@ -280,9 +340,51 @@ export default function SearchPage() {
                   </CardContent>
                 </Card>
               ))}
+
+              {/* Divider and Also Mentioned */}
+              {alsoMentioned.length > 0 && (
+                <>
+                  <div className="flex items-center gap-2 py-2">
+                    <div className="flex-1 h-px bg-border" />
+                    <span className="text-xs text-muted-foreground">Also Referenced</span>
+                    <div className="flex-1 h-px bg-border" />
+                  </div>
+                  {alsoMentioned.map((officer) => (
+                    <Card
+                      key={officer.id}
+                      className="cursor-pointer hover:bg-accent/50 transition-colors opacity-75"
+                      onClick={() => handleOfficerClick(officer.id)}
+                    >
+                      <CardContent className="p-3">
+                        <div className="flex gap-3">
+                          <Avatar className="h-10 w-10">
+                            <AvatarImage src={officer.photoUrl || undefined} />
+                            <AvatarFallback className="bg-muted text-muted-foreground text-xs">
+                              {getInitials(officer.name)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="text-xs">
+                                {officer.rank}
+                              </Badge>
+                              <span className="font-medium text-sm truncate">
+                                {officer.name}
+                              </span>
+                            </div>
+                            <p className="text-xs text-muted-foreground truncate">
+                              {officer.unit}
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </>
+              )}
             </div>
           )}
-        </ScrollArea>
+        </div>
       </div>
 
       {/* Officer Detail Dialog */}

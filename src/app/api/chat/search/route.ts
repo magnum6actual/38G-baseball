@@ -5,8 +5,9 @@ import {
   getConversationById,
   addMessageToConversation,
 } from '@/lib/db';
-import { ragSearch, getOfficerSummaries } from '@/lib/search';
-import { SearchChatRequest, SearchChatResponse, ConversationMessage } from '@/types';
+import { prepareRagSearch, parseOfficerIds, getOfficerSummaries } from '@/lib/search';
+import { chatStream, SEARCH_SYSTEM_PROMPT } from '@/lib/claude';
+import { SearchChatRequest, ConversationMessage } from '@/types';
 
 export async function POST(request: NextRequest) {
   try {
@@ -48,30 +49,74 @@ export async function POST(request: NextRequest) {
     // Get updated conversation with the new message
     conversation = getConversationById(convId)!;
 
-    // Perform RAG search
-    const { response, officerIds } = await ragSearch(
+    // Prepare RAG search (retrieves officers and builds messages)
+    const { messages, officers } = await prepareRagSearch(
       message,
       conversation.messages.slice(0, -1) // Exclude the message we just added
     );
 
-    // Add assistant response to conversation
-    const assistantMessage: ConversationMessage = {
-      role: 'assistant',
-      content: response,
-      timestamp: new Date().toISOString(),
-    };
-    addMessageToConversation(convId, assistantMessage);
+    // Create a streaming response using SSE
+    const encoder = new TextEncoder();
+    let fullResponse = '';
 
-    // Get officer summaries for the UI
-    const officers = getOfficerSummaries(officerIds);
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          // Send the conversation ID first
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify({ type: 'conversationId', conversationId: convId })}\n\n`)
+          );
 
-    const responseData: SearchChatResponse = {
-      conversationId: convId,
-      response,
-      officers,
-    };
+          // Stream text chunks from Claude
+          for await (const chunk of chatStream(messages, SEARCH_SYSTEM_PROMPT, 4096)) {
+            fullResponse += chunk;
+            controller.enqueue(
+              encoder.encode(`data: ${JSON.stringify({ type: 'text', content: chunk })}\n\n`)
+            );
+          }
 
-    return NextResponse.json(responseData);
+          // Parse the completed response for officer IDs
+          const { proseResponse, primaryTeamIds, alsoMentionedIds } = parseOfficerIds(fullResponse, officers);
+
+          // Save assistant response to conversation
+          const assistantMessage: ConversationMessage = {
+            role: 'assistant',
+            content: proseResponse,
+            timestamp: new Date().toISOString(),
+          };
+          addMessageToConversation(convId!, assistantMessage);
+
+          // Get officer summaries for both groups
+          const primaryTeam = getOfficerSummaries(primaryTeamIds);
+          const alsoMentioned = getOfficerSummaries(alsoMentionedIds);
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify({ type: 'officers', primaryTeam, alsoMentioned })}\n\n`)
+          );
+
+          // Send completion signal
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify({ type: 'done', proseResponse })}\n\n`)
+          );
+
+          controller.close();
+        } catch (error) {
+          console.error('Streaming error:', error);
+          const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify({ type: 'error', error: errorMessage })}\n\n`)
+          );
+          controller.close();
+        }
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
+    });
   } catch (error) {
     console.error('Search chat error:', error);
 
