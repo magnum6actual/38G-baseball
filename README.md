@@ -2,6 +2,19 @@
 
 Military Government Specialist (38G) talent discovery and profile management system. Enables commanders to find specialists through natural language search and allows officers to create their "baseball card" profiles through an AI-guided interview.
 
+## Current Status
+
+**Working:**
+- Search interface with RAG-powered officer discovery
+- Card Builder interview flow UI
+- Headshot generation via Gemini 3 Pro Image Preview (with auto-resize for large photos)
+- Database seeded with 20 fictional officers
+- All API integrations tested and functional
+
+**Needs Testing:**
+- Full Card Builder end-to-end flow (interview → headshot → PDF generation)
+- PDF generation with headshot overlay
+
 ## Features
 
 ### Search Interface (`/search`)
@@ -14,7 +27,8 @@ Military Government Specialist (38G) talent discovery and profile management sys
 ### Card Builder (`/builder`)
 - AI-guided interview flow for profile creation
 - Document upload support (resume, certifications)
-- Professional headshot generation using FLUX.2
+- Professional headshot generation using Google Gemini 3 Pro Image Preview
+- Automatic image resizing for large phone photos
 - Automated PDF generation from interview data
 - Integration with search database
 
@@ -23,17 +37,17 @@ Military Government Specialist (38G) talent discovery and profile management sys
 - Node.js 20+
 - Python 3.9+ (for PDF generation)
 - API keys for:
-  - Claude API (via Anthropic or Azure)
+  - Claude API via Azure AI Foundry
   - Azure OpenAI (for embeddings)
-  - Azure AI (for FLUX.2 headshot generation)
+  - Google AI Studio (for Gemini headshot generation)
 
 ## Setup
 
 ### 1. Clone and install dependencies
 
 ```bash
-git clone <repository-url>
-cd 38g-talent-search
+git clone https://github.com/magnum6actual/38G-baseball.git
+cd 38G-baseball
 npm install
 ```
 
@@ -52,17 +66,28 @@ cp .env.example .env
 ```
 
 Required environment variables:
-- `ANTHROPIC_API_KEY` or `AZURE_CLAUDE_ENDPOINT` + `AZURE_CLAUDE_API_KEY`
-- `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_API_KEY`, `AZURE_EMBEDDING_DEPLOYMENT`
-- `AZURE_AI_ENDPOINT`, `AZURE_AI_API_KEY` (for headshot generation)
+```env
+# Azure Claude (via AI Foundry)
+AZURE_CLAUDE_ENDPOINT=https://your-resource.services.ai.azure.com
+AZURE_CLAUDE_API_KEY=your-key
+
+# Azure OpenAI (for embeddings)
+AZURE_OPENAI_ENDPOINT=https://your-resource.cognitiveservices.azure.com
+AZURE_OPENAI_API_KEY=your-key
+AZURE_EMBEDDING_DEPLOYMENT=text-embedding-3-small
+
+# Google AI Studio (for Gemini headshots)
+GOOGLE_API_KEY=your-google-ai-studio-key
+```
 
 ### 4. Initialize database and seed officers
 
 ```bash
+npx tsx scripts/init-db.ts
 npx tsx scripts/seed-officers.ts
 ```
 
-This creates the SQLite database and populates it with sample officer profiles.
+This creates the SQLite database and populates it with 20 sample officer profiles.
 
 ### 5. Run development server
 
@@ -75,13 +100,13 @@ Open [http://localhost:3000](http://localhost:3000) to access the application.
 ## Project Structure
 
 ```
-38g-talent-search/
+38G-baseball/
 ├── src/
 │   ├── app/                    # Next.js App Router pages
 │   │   ├── api/               # API routes
 │   │   │   ├── chat/          # Chat endpoints (search, builder)
 │   │   │   ├── generate-pdf/  # PDF generation
-│   │   │   ├── headshot/      # Headshot processing
+│   │   │   ├── headshot/      # Gemini headshot processing
 │   │   │   └── officers/      # Officer CRUD
 │   │   ├── builder/           # Card builder page
 │   │   └── search/            # Search page
@@ -89,9 +114,9 @@ Open [http://localhost:3000](http://localhost:3000) to access the application.
 │   │   └── ui/               # shadcn/ui components
 │   ├── lib/                   # Core services
 │   │   ├── db.ts             # SQLite + sqlite-vec
-│   │   ├── claude.ts         # Claude API client
+│   │   ├── claude.ts         # Claude API client (Azure)
 │   │   ├── embeddings.ts     # Azure OpenAI embeddings
-│   │   ├── headshot.ts       # FLUX.2 integration
+│   │   ├── headshot.ts       # Gemini 3 Pro Image Preview
 │   │   ├── search.ts         # RAG search logic
 │   │   ├── builder.ts        # Interview logic
 │   │   └── pdf.ts            # PDF generation
@@ -100,8 +125,11 @@ Open [http://localhost:3000](http://localhost:3000) to access the application.
 │   ├── assets/               # PDF template, example data
 │   ├── references/           # Field definitions
 │   └── scripts/              # fill_pdf.py
-├── scripts/                  # Database initialization
-└── data/                     # SQLite database (created at runtime)
+├── scripts/                  # Database and test scripts
+├── data/                     # SQLite database (gitignored)
+├── Style_Reference.png       # Headshot style reference image
+├── gemini-image-prompt.txt   # Headshot generation prompt template
+└── fictional_officers.json   # Seed data for testing
 ```
 
 ## Docker Deployment
@@ -111,24 +139,24 @@ Build and run with Docker:
 ```bash
 docker build -t 38g-talent-search .
 docker run -p 3000:3000 \
-  -e ANTHROPIC_API_KEY=your-key \
+  -e AZURE_CLAUDE_ENDPOINT=your-endpoint \
+  -e AZURE_CLAUDE_API_KEY=your-key \
   -e AZURE_OPENAI_ENDPOINT=your-endpoint \
   -e AZURE_OPENAI_API_KEY=your-key \
   -e AZURE_EMBEDDING_DEPLOYMENT=text-embedding-3-small \
-  -e AZURE_AI_ENDPOINT=your-endpoint \
-  -e AZURE_AI_API_KEY=your-key \
+  -e GOOGLE_API_KEY=your-google-key \
   38g-talent-search
 ```
 
 ## Technology Stack
 
-- **Frontend**: Next.js 16, React, Tailwind CSS, shadcn/ui
+- **Frontend**: Next.js 14, React, Tailwind CSS, shadcn/ui
 - **Backend**: Next.js API Routes
 - **Database**: SQLite with sqlite-vec for vector search
 - **AI/ML**:
-  - Claude (reasoning and conversation)
+  - Claude claude-opus-4-5 via Azure AI Foundry (reasoning and conversation)
   - Azure OpenAI text-embedding-3-small (embeddings)
-  - FLUX.2 [pro] via Azure AI (headshot generation)
+  - Google Gemini 3 Pro Image Preview (headshot generation)
 - **PDF**: Python pypdf + PyMuPDF
 
 ## Usage
@@ -145,8 +173,18 @@ docker run -p 3000:3000 \
 2. Optionally upload your resume or supporting documents
 3. Answer the AI interviewer's questions about your background
 4. Upload a photo for professional headshot processing
-5. Generate your baseball card PDF
-6. Your profile is automatically added to the search database
+5. Approve or regenerate the AI-enhanced headshot
+6. Generate your baseball card PDF
+7. Your profile is automatically added to the search database
+
+## Test Scripts
+
+Located in `scripts/`:
+- `test-headshot-module.ts` - Test Gemini headshot generation directly
+- `test-aistudio-gemini3.ts` - Test Gemini 3 Pro Image Preview API
+- `test-services.ts` - Test all API connections
+
+Run with: `npx tsx scripts/<script-name>.ts`
 
 ## License
 

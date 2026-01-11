@@ -122,11 +122,11 @@ A 38G officer needs to create their baseball card.
 |-----------|--------|-----------|
 | UI Framework | Next.js 14+ (App Router) | Modern React, good DX, Azure-deployable |
 | Styling | Tailwind + shadcn/ui | Rapid development, consistent design |
-| Chat UI | Evaluate: vercel/ai-chatbot vs fresh build | Use if helpful, don't force if overhead |
-| LLM - Primary | Claude (via Anthropic API) | CDAO has access, best for reasoning |
-| LLM - Headshots | Google Gemini (AI Studio) | Image generation via `@google/generative-ai` SDK |
+| Chat UI | Custom build | Simple prototype needs, full control over UX |
+| LLM - Primary | Claude claude-opus-4-5 (via Azure AI Foundry) | CDAO has access, best for reasoning |
+| LLM - Headshots | Google Gemini 3 Pro Image Preview | Image generation via `@google/generative-ai` SDK |
 | Database | SQLite + sqlite-vec | Document-style JSON storage, vector search, portable |
-| Embeddings | Google `text-embedding-004` | Consolidates with Gemini under one API key |
+| Embeddings | Azure OpenAI `text-embedding-3-small` | 1536 dimensions, good quality |
 | PDF Generation | `fill_pdf.py` (pypdf + PyMuPDF) | pypdf for text fields, PyMuPDF overlays headshot |
 | Deployment | Docker container on Azure | Consistent environments, flexible |
 
@@ -337,19 +337,20 @@ Handles card builder conversation.
 ```
 
 ### POST /api/headshot
-Process headshot through Gemini.
+Process headshot through Gemini 3 Pro Image Preview.
 
 **Request:**
 ```json
 {
   "subjectImage": "base64-encoded-image",
-  "name": "CULBRETH",
-  "rank": "Major (oak leaf)",
   "enhancements": "reduce under-eye bags, soften wrinkles"  // optional
 }
 ```
 
-System combines with bundled `Style_Reference.png` and prompt template.
+System automatically:
+- Resizes large images (iPhone photos) to 512px max dimension
+- Combines with bundled `Style_Reference.png`
+- Uses prompt template from `gemini-image-prompt.txt`
 
 **Response:**
 ```json
@@ -406,10 +407,22 @@ Get officer headshot.
 
 Environment variables:
 ```
-ANTHROPIC_API_KEY=         # Claude API access
-GOOGLE_API_KEY=            # Gemini (headshots) + embeddings
+# Azure Claude (via AI Foundry)
+AZURE_CLAUDE_ENDPOINT=     # e.g., https://your-resource.services.ai.azure.com
+AZURE_CLAUDE_API_KEY=      # API key for Claude access
+
+# Azure OpenAI (for embeddings)
+AZURE_OPENAI_ENDPOINT=     # e.g., https://your-resource.cognitiveservices.azure.com
+AZURE_OPENAI_API_KEY=      # API key for embeddings
+AZURE_EMBEDDING_DEPLOYMENT=text-embedding-3-small
+
+# Google AI Studio (for Gemini headshots)
+GOOGLE_API_KEY=            # Google AI Studio API key
+
+# Paths (defaults usually work)
 DATABASE_PATH=             # SQLite file path (default: ./data/38g.db)
 PDF_TEMPLATE_PATH=         # Path to blank baseball card PDF
+STYLE_REFERENCE_PATH=      # Path to headshot style reference (default: ./Style_Reference.png)
 ```
 
 ## Error Handling
