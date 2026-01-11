@@ -1,0 +1,13 @@
+I have attached two images. Please generate a highly realistic, professional military headshot following these specific instructions:
+
+1. The Subject: Use the person in Subject.jpg (the person in the camouflage uniform). Keep their exact US Army OCP uniform, ensuring the specific name tape and rank insignia visible in the source photo are preserved exactly as they are.
+
+2. The Style & Background: Use Style_Reference.jpg (the officer in the dark suit) as the reference for the pose, lighting, and background.
+
+Background: Create a similar seamless grey studio backdrop with a blurred US flag draped on the left side.
+
+Lighting: Mimic the soft, professional studio lighting from the reference.
+
+3. Enhancements: While maintaining a realistic photo-quality, please [the users requested enhancements].
+
+Output: A photorealistic headshot with a 2:3 aspect ratio.

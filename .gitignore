@@ -39,3 +39,27 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# credentials - NEVER commit these
+gcp-service-account.json
+*.keystore
+*.jks
+
+# database files
+/data/*.db
+/data/*.db-journal
+/data/*.db-shm
+/data/*.db-wal
+
+# generated test images
+Generated_*.png
+
+# personal test photos (large files, privacy)
+Subject.png
+Subject_small.png
+
+# debug/temp documentation
+FLUX2-API-ISSUE.md
+
+# skill files (large binary)
+*.skill

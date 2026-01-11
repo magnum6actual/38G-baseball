@@ -1,0 +1,934 @@
+{
+  "officers": [
+    {
+      "id": "officer_001",
+      "name": "Sarah J. Chen",
+      "rank": "CPT",
+      "unit": "352nd Civil Affairs Command",
+      "date_assigned": "15 SEP 2023",
+      "position_title": "Military Government Officer",
+      "mos_skill": "38G - 6A",
+      "skill_plain": "Rule of Law / Legal",
+      "residence": "Alexandria, VA",
+      "civilian_occupation": "Assistant US Attorney, EDVA",
+      "additional_info": "Former JAG officer with 4 years active duty legal experience including courts-martial prosecution and operational law advisory. Deployed to Afghanistan supporting Rule of Law programs with DOJ and State Department partners.\n\nCurrently serving as Assistant US Attorney in the Eastern District of Virginia, specializing in national security and cybercrime prosecutions. Experience with MLAT requests, extradition proceedings, and interagency coordination with FBI, DHS, and IC partners.\n\nDari language capability from Afghanistan deployment and subsequent study. Best employed for rule of law assessments, judicial system development, legal framework analysis, and interagency legal coordination in complex environments.\n\nMIL: sarah.j.chen.mil@army.mil\nCIV: sarah.chen@usdoj.gov",
+      "skills": [
+        "Military Justice / UCMJ", "National Security Law",
+        "Rule of Law Assessment", "Federal Prosecution",
+        "Judicial System Development", "Interagency Coordination",
+        "MLAT / Extradition", "Cybercrime Prosecution",
+        "Operational Law Advisory", "Legal Framework Analysis"
+      ],
+      "deployments": [
+        {"dates": "Mar 2019 - Mar 2020", "mission": "OFS", "location": "Afghanistan (Kabul)", "position": "Rule of Law Advisor, RS Legal"}
+      ],
+      "exercises": [
+        {"event": "CSTX", "position_dates": "352 CACOM / Mar 2024"}
+      ],
+      "prior_experience": [
+        {"dates": "2021 - Present", "location": "US Attorney's Office, EDVA", "position": "AUSA - National Security & Cyber"},
+        {"dates": "2016 - 2020", "location": "US Army JAG Corps (Active)", "position": "Trial Counsel / Operational Law Attorney"},
+        {"dates": "2020 - 2021", "location": "DOJ National Security Division", "position": "Trial Attorney (Counterterrorism)"}
+      ],
+      "awards_prior": "MSM, ARCOM (2), AAM, NDSM, ASR, GWOT-SM, NATO Medal",
+      "awards_38g": "",
+      "credentials": "JD; Bar: VA, DC, CAAF",
+      "education": "BA International Relations, Stanford 2013; JD, UVA Law 2016",
+      "training_38g": [
+        {"dates": "2023", "course": "CA Qualification Course"}
+      ],
+      "clearance_level": "SECRET",
+      "clearance_exp": "Sep 2029",
+      "passport_personal": "14 JUN 2031",
+      "passport_official": "N/A",
+      "languages": [
+        {"language": "Dari", "listening": "2", "reading": "1+", "speaking": "2"}
+      ]
+    },
+    {
+      "id": "officer_002",
+      "name": "Marcus T. Williams",
+      "rank": "MAJ",
+      "unit": "353rd Civil Affairs Command",
+      "date_assigned": "01 MAR 2024",
+      "position_title": "Military Government Officer",
+      "mos_skill": "38G - 6D",
+      "skill_plain": "Public Health",
+      "residence": "Atlanta, GA",
+      "civilian_occupation": "Epidemiologist, CDC",
+      "additional_info": "CDC epidemiologist with 12 years experience in infectious disease surveillance and outbreak response. Led teams in West Africa during Ebola response (2014-2015) and globally during COVID-19 pandemic.\n\nPrior Army Medical Service Corps officer with deployment to Iraq coordinating medical logistics and host nation health system assessment. Experience building health surveillance networks in austere environments.\n\nExpertise in health system capacity assessment, disease surveillance architecture, and medical logistics. Published researcher with 15+ peer-reviewed articles on global health security.\n\nMIL: marcus.t.williams.mil@army.mil\nCIV: mwilliams@cdc.gov",
+      "skills": [
+        "Epidemiology", "Outbreak Response",
+        "Health System Assessment", "Disease Surveillance",
+        "Medical Logistics", "Global Health Security",
+        "Data Analytics", "Interagency Health Coord",
+        "Training Development", "Research Methods"
+      ],
+      "deployments": [
+        {"dates": "Sep 2007 - Sep 2008", "mission": "OIF", "location": "Iraq (Baghdad)", "position": "Medical Plans Officer, 3rd Med Cmd"}
+      ],
+      "exercises": [
+        {"event": "Global Medic", "position_dates": "USARPAC / Jun 2024"}
+      ],
+      "prior_experience": [
+        {"dates": "2015 - Present", "location": "CDC, Atlanta", "position": "Epidemiologist - Global Health Security"},
+        {"dates": "2014 - 2015", "location": "CDC Ebola Response, Liberia", "position": "Field Epidemiologist"},
+        {"dates": "2004 - 2012", "location": "US Army Medical Service Corps", "position": "Medical Operations Officer"}
+      ],
+      "awards_prior": "BSM, MSM, ARCOM (3), AAM (2), NDSM, ASR, ICM",
+      "awards_38g": "",
+      "credentials": "PhD Epidemiology; MPH",
+      "education": "BS Biology, Morehouse 2004; MPH, Emory 2010; PhD Epidemiology, Emory 2015",
+      "training_38g": [
+        {"dates": "2024", "course": "CA Qualification Course"}
+      ],
+      "clearance_level": "TS/SCI",
+      "clearance_exp": "Mar 2030",
+      "passport_personal": "22 AUG 2029",
+      "passport_official": "22 AUG 2029",
+      "languages": [
+        {"language": "French", "listening": "2+", "reading": "2", "speaking": "2"}
+      ]
+    },
+    {
+      "id": "officer_003",
+      "name": "Jennifer R. Okonkwo",
+      "rank": "LTC",
+      "unit": "351st Civil Affairs Command",
+      "date_assigned": "15 JUN 2022",
+      "position_title": "Plans Officer",
+      "mos_skill": "38G - 6F",
+      "skill_plain": "Infrastructure",
+      "residence": "Houston, TX",
+      "civilian_occupation": "Sr Program Manager, USACE",
+      "additional_info": "US Army Corps of Engineers program manager with 18 years experience in infrastructure development, including 6 years in Afghanistan managing $2B+ construction portfolio. Led Kajaki Dam rehabilitation and multiple road/bridge projects.\n\nEngineering branch officer (12A) with combat engineer battalion command experience. Two Iraq deployments focused on route clearance and infrastructure assessment.\n\nExpertise in infrastructure assessment, construction management, contract oversight, and host nation capacity building. PMP certified with LEED accreditation.\n\nMIL: jennifer.r.okonkwo.mil@army.mil\nCIV: jennifer.okonkwo@usace.army.mil",
+      "skills": [
+        "Infrastructure Assessment", "Construction Management",
+        "Contract Oversight", "Program Management",
+        "Combat Engineering", "Route Clearance",
+        "Capacity Building", "Cost Estimation",
+        "Project Scheduling", "Quality Assurance"
+      ],
+      "deployments": [
+        {"dates": "Aug 2010 - Aug 2011", "mission": "OEF", "location": "Afghanistan (Helmand)", "position": "Infrastructure Program Mgr, USACE"},
+        {"dates": "Mar 2006 - Mar 2007", "mission": "OIF", "location": "Iraq (Anbar)", "position": "Cdr, 54th Eng Co"},
+        {"dates": "Jan 2004 - Jan 2005", "mission": "OIF", "location": "Iraq (Tikrit)", "position": "Plt Ldr, 299th Eng Bn"}
+      ],
+      "exercises": [
+        {"event": "CSTX", "position_dates": "351 CACOM / Aug 2023"},
+        {"event": "Keen Edge", "position_dates": "USARPAC / Feb 2024"}
+      ],
+      "prior_experience": [
+        {"dates": "2018 - Present", "location": "USACE Galveston District", "position": "Sr Program Manager - Military Construction"},
+        {"dates": "2011 - 2018", "location": "USACE Afghanistan District", "position": "Program Manager - Infrastructure"},
+        {"dates": "2002 - 2011", "location": "US Army Engineer Branch", "position": "Various Command & Staff"}
+      ],
+      "awards_prior": "BSM (2), MSM (2), ARCOM (4), AAM (3), NDSM, ASR, ICM (2), ACM",
+      "awards_38g": "ARCOM",
+      "credentials": "PE (TX); PMP; LEED AP",
+      "education": "BS Civil Engineering, Texas A&M 2002; MS Engineering Management, Missouri S&T 2012",
+      "training_38g": [
+        {"dates": "2022", "course": "CA Qualification Course"},
+        {"dates": "2023", "course": "Infrastructure Assessment Course"}
+      ],
+      "clearance_level": "SECRET",
+      "clearance_exp": "Jun 2028",
+      "passport_personal": "03 MAR 2030",
+      "passport_official": "03 MAR 2030",
+      "languages": [
+        {"language": "Spanish", "listening": "1+", "reading": "1", "speaking": "1+"}
+      ]
+    },
+    {
+      "id": "officer_004",
+      "name": "David A. Kowalski",
+      "rank": "MAJ",
+      "unit": "353rd Civil Affairs Command",
+      "date_assigned": "20 OCT 2023",
+      "position_title": "Military Government Officer",
+      "mos_skill": "38G - 6E",
+      "skill_plain": "Commerce & Trade",
+      "residence": "Chicago, IL",
+      "civilian_occupation": "VP Supply Chain, Caterpillar Inc",
+      "additional_info": "Supply chain executive managing $4B annual procurement across 50+ countries. Expertise in sanctions compliance, export controls, and international trade regulations.\n\nFormer Quartermaster officer with deployment to Afghanistan managing theater-level logistics. Experience with host nation trucking contracts and supply chain security.\n\nSpecializes in trade route analysis, sanctions evasion detection, and economic network mapping. Built supply chain risk models used across Fortune 500.\n\nMIL: david.a.kowalski.mil@army.mil\nCIV: dkowalski@cat.com",
+      "skills": [
+        "Supply Chain Management", "Sanctions Compliance",
+        "Export Controls", "Trade Route Analysis",
+        "Procurement", "Vendor Management",
+        "Economic Network Analysis", "Risk Modeling",
+        "International Trade Law", "Logistics Planning"
+      ],
+      "deployments": [
+        {"dates": "Feb 2012 - Feb 2013", "mission": "OEF", "location": "Afghanistan (Bagram)", "position": "Support Operations Officer, 101st SBDE"}
+      ],
+      "exercises": [
+        {"event": "CSTX", "position_dates": "353 CACOM / Apr 2024"}
+      ],
+      "prior_experience": [
+        {"dates": "2019 - Present", "location": "Caterpillar Inc, Chicago", "position": "VP Global Supply Chain"},
+        {"dates": "2015 - 2019", "location": "Deloitte Consulting", "position": "Manager - Supply Chain Strategy"},
+        {"dates": "2008 - 2015", "location": "US Army Quartermaster Corps", "position": "Various Logistics Assignments"}
+      ],
+      "awards_prior": "BSM, ARCOM (2), AAM, NDSM, ASR, ACM",
+      "awards_38g": "",
+      "credentials": "CSCP; CPIM",
+      "education": "BS Supply Chain Management, Penn State 2008; MBA, Kellogg 2017",
+      "training_38g": [
+        {"dates": "2023", "course": "CA Qualification Course"}
+      ],
+      "clearance_level": "SECRET",
+      "clearance_exp": "Oct 2029",
+      "passport_personal": "18 DEC 2028",
+      "passport_official": "N/A",
+      "languages": [
+        {"language": "Polish", "listening": "3", "reading": "2+", "speaking": "3"}
+      ]
+    },
+    {
+      "id": "officer_005",
+      "name": "Aisha M. Hassan",
+      "rank": "CPT",
+      "unit": "352nd Civil Affairs Command",
+      "date_assigned": "01 AUG 2024",
+      "position_title": "Military Government Officer",
+      "mos_skill": "38G - 6G",
+      "skill_plain": "Information & Media",
+      "residence": "New York, NY",
+      "civilian_occupation": "Director of Comms, UN DPPA",
+      "additional_info": "Strategic communications professional with UN Department of Political and Peacebuilding Affairs. Managed information operations and public affairs for peacekeeping missions in Mali and South Sudan.\n\nFormer Army Public Affairs officer with deployment to Iraq supporting strategic communications and counter-disinformation efforts. Experience with Arabic-language media engagement.\n\nExpertise in influence operations analysis, media landscape assessment, and strategic messaging in conflict environments. Native Arabic speaker.\n\nMIL: aisha.m.hassan.mil@army.mil\nCIV: hassana@un.org",
+      "skills": [
+        "Strategic Communications", "Public Affairs",
+        "Influence Operations", "Media Analysis",
+        "Counter-Disinformation", "Crisis Communications",
+        "Stakeholder Engagement", "Arabic Media",
+        "Social Media Analysis", "Narrative Development"
+      ],
+      "deployments": [
+        {"dates": "Jun 2017 - Jun 2018", "mission": "OIR", "location": "Iraq (Baghdad)", "position": "Public Affairs Officer, CJTF-OIR"}
+      ],
+      "exercises": [
+        {"event": "Cyber Flag", "position_dates": "CYBERCOM / Nov 2024"}
+      ],
+      "prior_experience": [
+        {"dates": "2021 - Present", "location": "UN DPPA, New York", "position": "Director, Strategic Communications"},
+        {"dates": "2019 - 2021", "location": "MINUSMA, Mali", "position": "Chief Public Information Officer"},
+        {"dates": "2014 - 2019", "location": "US Army Public Affairs", "position": "Various PAO Assignments"}
+      ],
+      "awards_prior": "ARCOM (2), AAM (2), NDSM, ICM, UN Medal (2)",
+      "awards_38g": "",
+      "credentials": "",
+      "education": "BA Journalism, Northwestern 2014; MA Strategic Communications, Columbia 2019",
+      "training_38g": [
+        {"dates": "2024", "course": "CA Qualification Course"}
+      ],
+      "clearance_level": "TS/SCI",
+      "clearance_exp": "Aug 2030",
+      "passport_personal": "25 FEB 2032",
+      "passport_official": "25 FEB 2032",
+      "languages": [
+        {"language": "Arabic", "listening": "4", "reading": "4", "speaking": "4"},
+        {"language": "French", "listening": "2", "reading": "2", "speaking": "2"}
+      ]
+    },
+    {
+      "id": "officer_006",
+      "name": "Robert J. Thornton",
+      "rank": "LTC",
+      "unit": "353rd Civil Affairs Command",
+      "date_assigned": "15 MAR 2021",
+      "position_title": "Deputy G5",
+      "mos_skill": "38G - 6B",
+      "skill_plain": "Public Safety",
+      "residence": "Phoenix, AZ",
+      "civilian_occupation": "Deputy Chief, Phoenix PD",
+      "additional_info": "25-year law enforcement veteran, currently Deputy Chief overseeing patrol operations for 4,000-officer department. Expertise in police training program development and community policing strategies.\n\nFormer Military Police officer with multiple deployments including police transition team advisor in Iraq. Trained Iraqi Police Service personnel and developed community policing curriculum.\n\nSpecializes in security sector reform, police force development, and public safety institution building. Graduate of FBI National Academy.\n\nMIL: robert.j.thornton.mil@army.mil\nCIV: robert.thornton@phoenix.gov",
+      "skills": [
+        "Police Operations", "Security Sector Reform",
+        "Training Development", "Community Policing",
+        "Criminal Investigation", "SWAT/Tactical",
+        "Police Transition Teams", "Force Development",
+        "Crisis Management", "Internal Affairs"
+      ],
+      "deployments": [
+        {"dates": "Jan 2008 - Jan 2009", "mission": "OIF", "location": "Iraq (Mosul)", "position": "Police Transition Team Chief"},
+        {"dates": "Mar 2004 - Mar 2005", "mission": "OIF", "location": "Iraq (Baghdad)", "position": "Cdr, 615th MP Co"}
+      ],
+      "exercises": [
+        {"event": "CSTX", "position_dates": "353 CACOM / Sep 2022"},
+        {"event": "Maple Resolve", "position_dates": "Canada / May 2023"}
+      ],
+      "prior_experience": [
+        {"dates": "2015 - Present", "location": "Phoenix Police Department", "position": "Deputy Chief of Police"},
+        {"dates": "2010 - 2015", "location": "Phoenix Police Department", "position": "Commander - Special Operations"},
+        {"dates": "1998 - 2010", "location": "US Army Military Police Corps", "position": "Various Command & Staff"}
+      ],
+      "awards_prior": "BSM (2), MSM, ARCOM (3), AAM (2), NDSM, ASR, ICM (2)",
+      "awards_38g": "MSM",
+      "credentials": "FBI National Academy Graduate",
+      "education": "BS Criminal Justice, Arizona State 1998; MPA, ASU 2008",
+      "training_38g": [
+        {"dates": "2021", "course": "CA Qualification Course"},
+        {"dates": "2022", "course": "Security Sector Reform Course"}
+      ],
+      "clearance_level": "SECRET",
+      "clearance_exp": "Mar 2027",
+      "passport_personal": "08 JUL 2029",
+      "passport_official": "08 JUL 2029",
+      "languages": [
+        {"language": "Spanish", "listening": "2", "reading": "1+", "speaking": "2"}
+      ]
+    },
+    {
+      "id": "officer_007",
+      "name": "Christine L. Park",
+      "rank": "MAJ",
+      "unit": "351st Civil Affairs Command",
+      "date_assigned": "01 FEB 2023",
+      "position_title": "Military Government Officer",
+      "mos_skill": "38G - 6H",
+      "skill_plain": "Education",
+      "residence": "Los Angeles, CA",
+      "civilian_occupation": "Education Program Officer, USAID",
+      "additional_info": "USAID education specialist managing $150M education portfolio across Indo-Pacific region. Expertise in education system assessment, curriculum development, and teacher training programs.\n\nFormer Signal Corps officer with deployment to Afghanistan supporting communications infrastructure for provincial reconstruction teams.\n\nSpecializes in education sector reform, girls' education initiatives, and post-conflict education system rebuilding. Published researcher on education in fragile states.\n\nMIL: christine.l.park.mil@army.mil\nCIV: cpark@usaid.gov",
+      "skills": [
+        "Education System Assessment", "Curriculum Development",
+        "Teacher Training", "Program Management",
+        "Monitoring & Evaluation", "Gender in Education",
+        "Youth Programming", "Capacity Building",
+        "Stakeholder Coordination", "Policy Analysis"
+      ],
+      "deployments": [
+        {"dates": "Aug 2011 - Aug 2012", "mission": "OEF", "location": "Afghanistan (Kandahar)", "position": "Signal Officer, PRT Kandahar"}
+      ],
+      "exercises": [
+        {"event": "Talisman Sabre", "position_dates": "Australia / Jul 2023"}
+      ],
+      "prior_experience": [
+        {"dates": "2018 - Present", "location": "USAID, Washington DC", "position": "Education Program Officer - Indo-Pacific"},
+        {"dates": "2015 - 2018", "location": "Peace Corps, Rwanda", "position": "Education Sector Director"},
+        {"dates": "2008 - 2015", "location": "US Army Signal Corps", "position": "Various Signal Assignments"}
+      ],
+      "awards_prior": "ARCOM (2), AAM (3), NDSM, ASR, ACM",
+      "awards_38g": "",
+      "credentials": "",
+      "education": "BS Information Systems, UCLA 2008; MEd International Education, Harvard 2015",
+      "training_38g": [
+        {"dates": "2023", "course": "CA Qualification Course"}
+      ],
+      "clearance_level": "SECRET",
+      "clearance_exp": "Feb 2029",
+      "passport_personal": "30 NOV 2030",
+      "passport_official": "30 NOV 2030",
+      "languages": [
+        {"language": "Korean", "listening": "3", "reading": "3", "speaking": "3"},
+        {"language": "Kinyarwanda", "listening": "2", "reading": "1", "speaking": "2"}
+      ]
+    },
+    {
+      "id": "officer_008",
+      "name": "Michael R. Santos",
+      "rank": "CPT",
+      "unit": "352nd Civil Affairs Command",
+      "date_assigned": "15 NOV 2024",
+      "position_title": "Military Government Officer",
+      "mos_skill": "38G - 6L",
+      "skill_plain": "Agriculture",
+      "residence": "Sacramento, CA",
+      "civilian_occupation": "Agricultural Economist, USDA",
+      "additional_info": "USDA economist specializing in agricultural trade policy and food security analysis. Expertise in agricultural value chain assessment and rural development programming.\n\nFormer Field Artillery officer with deployment to Iraq. Transitioned to Civil Affairs after recognizing importance of agricultural development in counterinsurgency.\n\nSpecializes in food security assessment, agricultural market analysis, and farmer cooperative development. Experience with USDA programs in Central America.\n\nMIL: michael.r.santos.mil@army.mil\nCIV: michael.santos@usda.gov",
+      "skills": [
+        "Agricultural Economics", "Food Security Analysis",
+        "Value Chain Assessment", "Rural Development",
+        "Trade Policy", "Market Analysis",
+        "Cooperative Development", "Irrigation Systems",
+        "Livestock Management", "Agricultural Finance"
+      ],
+      "deployments": [
+        {"dates": "Oct 2015 - Oct 2016", "mission": "OIR", "location": "Iraq (Erbil)", "position": "Fire Support Officer, 2-27 IN"}
+      ],
+      "exercises": [
+        {"event": "CSTX", "position_dates": "352 CACOM / Jun 2025"}
+      ],
+      "prior_experience": [
+        {"dates": "2020 - Present", "location": "USDA Foreign Agricultural Service", "position": "Agricultural Economist"},
+        {"dates": "2018 - 2020", "location": "USDA, Guatemala City", "position": "Agricultural Attaché"},
+        {"dates": "2012 - 2018", "location": "US Army Field Artillery", "position": "Various FA Assignments"}
+      ],
+      "awards_prior": "ARCOM (2), AAM, NDSM, ICM",
+      "awards_38g": "",
+      "credentials": "",
+      "education": "BS Agricultural Economics, UC Davis 2012; MS Applied Economics, Cornell 2018",
+      "training_38g": [
+        {"dates": "2024", "course": "CA Qualification Course"}
+      ],
+      "clearance_level": "SECRET",
+      "clearance_exp": "Nov 2030",
+      "passport_personal": "12 APR 2031",
+      "passport_official": "12 APR 2031",
+      "languages": [
+        {"language": "Spanish", "listening": "3", "reading": "3", "speaking": "3"}
+      ]
+    },
+    {
+      "id": "officer_009",
+      "name": "Patricia A. O'Brien",
+      "rank": "MAJ",
+      "unit": "353rd Civil Affairs Command",
+      "date_assigned": "01 JUL 2022",
+      "position_title": "Military Government Officer",
+      "mos_skill": "38G - 6V",
+      "skill_plain": "Emergency Management",
+      "residence": "Miami, FL",
+      "civilian_occupation": "Director, Miami-Dade OEM",
+      "additional_info": "Emergency management professional directing all-hazards preparedness for 2.7M population county. Led response operations for multiple hurricanes including Category 5 events.\n\nFormer Chemical Corps officer with expertise in CBRN response and consequence management. Deployed to Kuwait supporting WMD elimination operations.\n\nSpecializes in disaster response coordination, emergency operations center management, and mass care planning. FEMA certified instructor.\n\nMIL: patricia.a.obrien.mil@army.mil\nCIV: pobrien@miamidade.gov",
+      "skills": [
+        "Emergency Operations", "Disaster Response",
+        "CBRN Response", "Mass Care Planning",
+        "EOC Management", "Incident Command",
+        "Hurricane Response", "Evacuation Planning",
+        "Interagency Coordination", "Public Warning Systems"
+      ],
+      "deployments": [
+        {"dates": "Jan 2011 - Jan 2012", "mission": "OND", "location": "Kuwait", "position": "CBRN Officer, 1st TSC"}
+      ],
+      "exercises": [
+        {"event": "Vibrant Response", "position_dates": "NORTHCOM / Aug 2023"},
+        {"event": "CSTX", "position_dates": "353 CACOM / Mar 2024"}
+      ],
+      "prior_experience": [
+        {"dates": "2019 - Present", "location": "Miami-Dade County OEM", "position": "Director of Emergency Management"},
+        {"dates": "2015 - 2019", "location": "FEMA Region IV", "position": "Emergency Management Specialist"},
+        {"dates": "2007 - 2015", "location": "US Army Chemical Corps", "position": "Various CBRN Assignments"}
+      ],
+      "awards_prior": "MSM, ARCOM (2), AAM (2), NDSM, ASR",
+      "awards_38g": "ARCOM",
+      "credentials": "CEM (Certified Emergency Manager); FEMA Master Trainer",
+      "education": "BS Chemistry, Notre Dame 2007; MPA Emergency Management, FIU 2015",
+      "training_38g": [
+        {"dates": "2022", "course": "CA Qualification Course"},
+        {"dates": "2023", "course": "JHOC Course"}
+      ],
+      "clearance_level": "SECRET",
+      "clearance_exp": "Jul 2028",
+      "passport_personal": "05 SEP 2029",
+      "passport_official": "05 SEP 2029",
+      "languages": [
+        {"language": "Spanish", "listening": "2+", "reading": "2", "speaking": "2+"}
+      ]
+    },
+    {
+      "id": "officer_010",
+      "name": "James T. Nakamura",
+      "rank": "LTC",
+      "unit": "351st Civil Affairs Command",
+      "date_assigned": "01 SEP 2020",
+      "position_title": "G5 Plans Chief",
+      "mos_skill": "38G - 6Y",
+      "skill_plain": "Intel / Security Sector",
+      "residence": "Honolulu, HI",
+      "civilian_occupation": "Senior Analyst, DIA",
+      "additional_info": "Defense Intelligence Agency senior analyst specializing in Indo-Pacific security dynamics. 15+ years experience in intelligence analysis and security cooperation assessment.\n\nFormer Military Intelligence officer with multiple deployments to Afghanistan and Philippines. Led security force assistance assessments and partner nation intelligence capacity building.\n\nExpertise in security sector assessment, intelligence architecture development, and partner nation capacity building. Published author on Indo-Pacific security.\n\nMIL: james.t.nakamura.mil@army.mil\nCIV: james.nakamura@dia.mil",
+      "skills": [
+        "Intelligence Analysis", "Security Sector Assessment",
+        "Partner Capacity Building", "Security Cooperation",
+        "Threat Assessment", "Collection Management",
+        "Indo-Pacific Security", "Counterterrorism",
+        "Foreign Disclosure", "Intelligence Sharing"
+      ],
+      "deployments": [
+        {"dates": "Mar 2013 - Mar 2014", "mission": "OEF", "location": "Afghanistan (Kabul)", "position": "Intel Advisor, NTM-A"},
+        {"dates": "Jun 2008 - Jun 2009", "mission": "OEF", "location": "Afghanistan (Bagram)", "position": "S2, 173rd ABCT"},
+        {"dates": "Feb 2016 - Aug 2016", "mission": "OPP", "location": "Philippines", "position": "Intel Advisor, JSOTF-P"}
+      ],
+      "exercises": [
+        {"event": "Keen Edge", "position_dates": "Japan / Feb 2022"},
+        {"event": "Balikatan", "position_dates": "Philippines / Apr 2023"},
+        {"event": "Talisman Sabre", "position_dates": "Australia / Jul 2024"}
+      ],
+      "prior_experience": [
+        {"dates": "2018 - Present", "location": "DIA, Washington DC", "position": "Senior Intelligence Analyst - Indo-Pacific"},
+        {"dates": "2014 - 2018", "location": "USARPAC G2, Hawaii", "position": "Senior Analyst"},
+        {"dates": "2004 - 2014", "location": "US Army Military Intelligence", "position": "Various Intel Assignments"}
+      ],
+      "awards_prior": "BSM (2), MSM, ARCOM (4), AAM (3), NDSM, ASR, ACM (2)",
+      "awards_38g": "MSM, ARCOM",
+      "credentials": "",
+      "education": "BA Asian Studies, Hawaii 2004; MA Security Studies, Georgetown 2012",
+      "training_38g": [
+        {"dates": "2020", "course": "CA Qualification Course"},
+        {"dates": "2021", "course": "Security Sector Assessment Course"}
+      ],
+      "clearance_level": "TS/SCI",
+      "clearance_exp": "Sep 2026",
+      "passport_personal": "17 JAN 2028",
+      "passport_official": "17 JAN 2028",
+      "languages": [
+        {"language": "Japanese", "listening": "3", "reading": "2+", "speaking": "3"},
+        {"language": "Tagalog", "listening": "2", "reading": "1", "speaking": "2"}
+      ]
+    },
+    {
+      "id": "officer_011",
+      "name": "Elena V. Petrova",
+      "rank": "CPT",
+      "unit": "353rd Civil Affairs Command",
+      "date_assigned": "01 APR 2024",
+      "position_title": "Military Government Officer",
+      "mos_skill": "38G - 6C",
+      "skill_plain": "Governance / Pub Admin",
+      "residence": "Washington, DC",
+      "civilian_occupation": "Governance Specialist, World Bank",
+      "additional_info": "World Bank governance specialist with expertise in anti-corruption programs, public financial management, and civil service reform. Managed projects in Eastern Europe and Central Asia.\n\nFormer Finance Corps officer with deployment to Iraq supporting budget execution and financial management training for Iraqi ministries.\n\nNative Russian speaker with extensive work in post-Soviet states. Best employed for governance assessments, anti-corruption initiatives, and public administration reform.\n\nMIL: elena.v.petrova.mil@army.mil\nCIV: epetrova@worldbank.org",
+      "skills": [
+        "Governance Assessment", "Anti-Corruption",
+        "Public Financial Management", "Civil Service Reform",
+        "Budget Execution", "Procurement Systems",
+        "Institutional Development", "Policy Analysis",
+        "Donor Coordination", "E-Governance"
+      ],
+      "deployments": [
+        {"dates": "Sep 2014 - Sep 2015", "mission": "OIR", "location": "Iraq (Baghdad)", "position": "Financial Advisor, OSC-I"}
+      ],
+      "exercises": [
+        {"event": "CSTX", "position_dates": "353 CACOM / Oct 2024"}
+      ],
+      "prior_experience": [
+        {"dates": "2019 - Present", "location": "World Bank, Washington DC", "position": "Governance Specialist - ECA Region"},
+        {"dates": "2016 - 2019", "location": "USAID/Ukraine", "position": "Democracy & Governance Officer"},
+        {"dates": "2010 - 2016", "location": "US Army Finance Corps", "position": "Various Finance Assignments"}
+      ],
+      "awards_prior": "ARCOM (2), AAM (2), NDSM, ICM",
+      "awards_38g": "",
+      "credentials": "CPA (inactive)",
+      "education": "BS Accounting, George Mason 2010; MPA, Princeton 2019",
+      "training_38g": [
+        {"dates": "2024", "course": "CA Qualification Course"}
+      ],
+      "clearance_level": "SECRET",
+      "clearance_exp": "Apr 2030",
+      "passport_personal": "28 OCT 2031",
+      "passport_official": "N/A",
+      "languages": [
+        {"language": "Russian", "listening": "4", "reading": "4", "speaking": "4"},
+        {"language": "Ukrainian", "listening": "3", "reading": "2", "speaking": "3"}
+      ]
+    },
+    {
+      "id": "officer_012",
+      "name": "Thomas K. Reilly",
+      "rank": "MAJ",
+      "unit": "352nd Civil Affairs Command",
+      "date_assigned": "15 DEC 2023",
+      "position_title": "Military Government Officer",
+      "mos_skill": "38G - 6J",
+      "skill_plain": "Environmental Management",
+      "residence": "Denver, CO",
+      "civilian_occupation": "Environmental Scientist, EPA",
+      "additional_info": "EPA environmental scientist specializing in water quality, hazardous waste remediation, and environmental compliance. Led Superfund cleanup projects across Western US.\n\nFormer Engineer officer with expertise in environmental considerations for military operations. Deployed to Kosovo supporting environmental remediation at former military sites.\n\nSpecializes in environmental impact assessment, water resource management, and post-conflict environmental remediation. Best employed for environmental baseline assessments and remediation planning.\n\nMIL: thomas.k.reilly.mil@army.mil\nCIV: reilly.thomas@epa.gov",
+      "skills": [
+        "Environmental Assessment", "Water Quality",
+        "Hazardous Waste Remediation", "Superfund Process",
+        "NEPA Compliance", "Air Quality",
+        "Soil Contamination", "Environmental Law",
+        "GIS/Remote Sensing", "Risk Assessment"
+      ],
+      "deployments": [
+        {"dates": "Jun 2012 - Dec 2012", "mission": "KFOR", "location": "Kosovo", "position": "Environmental Officer, KFOR HQ"}
+      ],
+      "exercises": [
+        {"event": "CSTX", "position_dates": "352 CACOM / May 2024"}
+      ],
+      "prior_experience": [
+        {"dates": "2017 - Present", "location": "EPA Region 8, Denver", "position": "Environmental Scientist - Superfund"},
+        {"dates": "2014 - 2017", "location": "USACE Environmental Division", "position": "Environmental Engineer"},
+        {"dates": "2008 - 2014", "location": "US Army Engineer Branch", "position": "Various Engineer Assignments"}
+      ],
+      "awards_prior": "ARCOM (2), AAM, NDSM, KFOR Medal",
+      "awards_38g": "",
+      "credentials": "PE (CO); Certified Hazardous Materials Manager",
+      "education": "BS Environmental Engineering, Colorado School of Mines 2008; MS Environmental Science, Stanford 2014",
+      "training_38g": [
+        {"dates": "2023", "course": "CA Qualification Course"}
+      ],
+      "clearance_level": "SECRET",
+      "clearance_exp": "Dec 2029",
+      "passport_personal": "22 MAY 2030",
+      "passport_official": "N/A",
+      "languages": []
+    },
+    {
+      "id": "officer_013",
+      "name": "Amara N. Diallo",
+      "rank": "CPT",
+      "unit": "351st Civil Affairs Command",
+      "date_assigned": "01 JUN 2024",
+      "position_title": "Military Government Officer",
+      "mos_skill": "38G - 6M",
+      "skill_plain": "Dislocated Civilians",
+      "residence": "Minneapolis, MN",
+      "civilian_occupation": "Protection Officer, UNHCR",
+      "additional_info": "UNHCR protection officer with 8 years experience in refugee operations across Africa and Middle East. Managed camp operations for 50,000+ displaced persons in South Sudan.\n\nFormer Adjutant General Corps officer with deployment to Jordan supporting Syrian refugee response coordination with international organizations.\n\nExpertise in IDP/refugee camp management, protection monitoring, and humanitarian coordination. Native French and Wolof speaker.\n\nMIL: amara.n.diallo.mil@army.mil\nCIV: diallo@unhcr.org",
+      "skills": [
+        "Refugee Operations", "IDP Camp Management",
+        "Protection Monitoring", "Humanitarian Coordination",
+        "Registration Systems", "Vulnerable Groups",
+        "Shelter/NFI Distribution", "Return/Reintegration",
+        "GBV Prevention", "Child Protection"
+      ],
+      "deployments": [
+        {"dates": "Mar 2018 - Mar 2019", "mission": "Inherent Resolve", "location": "Jordan (Amman)", "position": "Civil-Military Coord Officer"}
+      ],
+      "exercises": [
+        {"event": "African Lion", "position_dates": "Morocco / Jun 2024"}
+      ],
+      "prior_experience": [
+        {"dates": "2020 - Present", "location": "UNHCR, Geneva/Field", "position": "Protection Officer"},
+        {"dates": "2019 - 2020", "location": "UNHCR South Sudan", "position": "Associate Protection Officer"},
+        {"dates": "2014 - 2019", "location": "US Army AG Corps", "position": "Various HR Assignments"}
+      ],
+      "awards_prior": "ARCOM, AAM (2), NDSM, ICM",
+      "awards_38g": "",
+      "credentials": "",
+      "education": "BA International Relations, Macalester 2014; MA Humanitarian Assistance, Tufts 2020",
+      "training_38g": [
+        {"dates": "2024", "course": "CA Qualification Course"}
+      ],
+      "clearance_level": "SECRET",
+      "clearance_exp": "Jun 2030",
+      "passport_personal": "09 AUG 2032",
+      "passport_official": "09 AUG 2032",
+      "languages": [
+        {"language": "French", "listening": "4", "reading": "4", "speaking": "4"},
+        {"language": "Wolof", "listening": "4", "reading": "3", "speaking": "4"},
+        {"language": "Arabic", "listening": "2", "reading": "1+", "speaking": "2"}
+      ]
+    },
+    {
+      "id": "officer_014",
+      "name": "Kevin M. O'Sullivan",
+      "rank": "MAJ",
+      "unit": "353rd Civil Affairs Command",
+      "date_assigned": "01 AUG 2023",
+      "position_title": "Military Government Officer",
+      "mos_skill": "38G - 6N",
+      "skill_plain": "Civil Information Mgmt",
+      "residence": "Austin, TX",
+      "civilian_occupation": "Data Scientist, Palantir",
+      "additional_info": "Palantir data scientist specializing in defense and intelligence applications. Built analytical platforms for SOCOM and intelligence community clients supporting targeting and civil information fusion.\n\nFormer Military Intelligence officer with deployment to Afghanistan supporting F3EAD targeting cycle and civil information integration. Experience with classified data architectures.\n\nExpertise in data fusion, network analysis, and building decision support systems. Best employed for civil information system development and analytical platform deployment.\n\nMIL: kevin.m.osullivan.mil@army.mil\nCIV: kosullivan@palantir.com",
+      "skills": [
+        "Data Science", "Civil Information Fusion",
+        "Network Analysis", "Targeting Support",
+        "Platform Development", "Machine Learning",
+        "Geospatial Analysis", "Database Architecture",
+        "Visualization", "Python/SQL"
+      ],
+      "deployments": [
+        {"dates": "Jan 2016 - Jan 2017", "mission": "OFS", "location": "Afghanistan (Bagram)", "position": "Targeting Analyst, CJSOTF-A"}
+      ],
+      "exercises": [
+        {"event": "CSTX", "position_dates": "353 CACOM / Nov 2023"},
+        {"event": "Cyber Flag", "position_dates": "CYBERCOM / Apr 2024"}
+      ],
+      "prior_experience": [
+        {"dates": "2020 - Present", "location": "Palantir Technologies, Austin", "position": "Data Scientist - Defense"},
+        {"dates": "2017 - 2020", "location": "Booz Allen Hamilton", "position": "Data Scientist - IC"},
+        {"dates": "2011 - 2017", "location": "US Army Military Intelligence", "position": "Various Intel Assignments"}
+      ],
+      "awards_prior": "BSM, ARCOM (2), AAM, NDSM, ASR, ACM",
+      "awards_38g": "",
+      "credentials": "",
+      "education": "BS Computer Science, Texas A&M 2011; MS Data Science, UT Austin 2020",
+      "training_38g": [
+        {"dates": "2023", "course": "CA Qualification Course"}
+      ],
+      "clearance_level": "TS/SCI",
+      "clearance_exp": "Aug 2029",
+      "passport_personal": "14 FEB 2029",
+      "passport_official": "N/A",
+      "languages": []
+    },
+    {
+      "id": "officer_015",
+      "name": "Rachel A. Goldstein",
+      "rank": "CPT",
+      "unit": "352nd Civil Affairs Command",
+      "date_assigned": "15 SEP 2024",
+      "position_title": "Military Government Officer",
+      "mos_skill": "38G - 6K",
+      "skill_plain": "Cultural Heritage",
+      "residence": "Boston, MA",
+      "civilian_occupation": "Curator, Museum of Fine Arts Boston",
+      "additional_info": "Museum curator specializing in ancient Near Eastern art with expertise in cultural property protection and provenance research. Conducted field research in Iraq and Syria pre-conflict.\n\nFormer Army officer with deployment to Iraq. Witnessed cultural heritage destruction firsthand and transitioned to cultural property protection work.\n\nExpertise in cultural property law, artifact identification, looting networks, and heritage site protection. Maintains relationships with international cultural heritage organizations.\n\nMIL: rachel.a.goldstein.mil@army.mil\nCIV: rgoldstein@mfa.org",
+      "skills": [
+        "Cultural Property Protection", "Provenance Research",
+        "Artifact Identification", "Heritage Site Assessment",
+        "Museum Operations", "Archaeological Methods",
+        "Cultural Property Law", "Looting Networks",
+        "Collection Management", "Conservation"
+      ],
+      "deployments": [
+        {"dates": "Aug 2013 - Aug 2014", "mission": "OEF", "location": "Afghanistan (Kabul)", "position": "Civil Affairs Officer, USFOR-A"}
+      ],
+      "exercises": [
+        {"event": "CSTX", "position_dates": "352 CACOM / Jan 2025"}
+      ],
+      "prior_experience": [
+        {"dates": "2019 - Present", "location": "Museum of Fine Arts, Boston", "position": "Associate Curator - Ancient Near East"},
+        {"dates": "2016 - 2019", "location": "Smithsonian Institution", "position": "Cultural Heritage Fellow"},
+        {"dates": "2009 - 2016", "location": "US Army Civil Affairs", "position": "Civil Affairs Officer (38A)"}
+      ],
+      "awards_prior": "ARCOM (2), AAM (2), NDSM, ASR, ACM",
+      "awards_38g": "",
+      "credentials": "",
+      "education": "BA Art History, Yale 2009; PhD Near Eastern Art, Harvard 2019",
+      "training_38g": [
+        {"dates": "2024", "course": "38G Conversion Course"},
+        {"dates": "2024", "course": "Cultural Heritage Protection Course"}
+      ],
+      "clearance_level": "SECRET",
+      "clearance_exp": "Sep 2030",
+      "passport_personal": "03 DEC 2031",
+      "passport_official": "N/A",
+      "languages": [
+        {"language": "Arabic", "listening": "2+", "reading": "3", "speaking": "2"},
+        {"language": "Hebrew", "listening": "2", "reading": "2+", "speaking": "2"}
+      ]
+    },
+    {
+      "id": "officer_016",
+      "name": "William J. Chen",
+      "rank": "LTC",
+      "unit": "351st Civil Affairs Command",
+      "date_assigned": "01 MAY 2021",
+      "position_title": "CA Battalion XO",
+      "mos_skill": "38G - 6E",
+      "skill_plain": "Commerce & Trade",
+      "residence": "San Francisco, CA",
+      "civilian_occupation": "Managing Director, Goldman Sachs",
+      "additional_info": "Goldman Sachs managing director in investment banking covering technology M&A. 15+ years experience in corporate finance, valuation, and deal structuring across global markets.\n\nFormer Armor officer with two Iraq deployments. Led economic development initiatives in Al Anbar Province including micro-lending programs and small business development.\n\nExpertise in financial analysis, economic assessment, and capital markets. Best employed for economic stabilization, financial sector assessment, and illicit finance analysis.\n\nMIL: william.j.chen.mil@army.mil\nCIV: william.chen@gs.com",
+      "skills": [
+        "Investment Banking", "Corporate Finance",
+        "M&A Analysis", "Valuation",
+        "Economic Assessment", "Financial Modeling",
+        "Capital Markets", "Deal Structuring",
+        "Micro-Finance", "Economic Development"
+      ],
+      "deployments": [
+        {"dates": "Mar 2006 - Mar 2007", "mission": "OIF", "location": "Iraq (Ramadi)", "position": "Cdr, A/1-37 AR"},
+        {"dates": "Jan 2004 - Jan 2005", "mission": "OIF", "location": "Iraq (Tikrit)", "position": "XO, B/1-66 AR"}
+      ],
+      "exercises": [
+        {"event": "CSTX", "position_dates": "351 CACOM / Sep 2022"},
+        {"event": "Yama Sakura", "position_dates": "Japan / Dec 2023"}
+      ],
+      "prior_experience": [
+        {"dates": "2015 - Present", "location": "Goldman Sachs, San Francisco", "position": "Managing Director - Tech M&A"},
+        {"dates": "2011 - 2015", "location": "Goldman Sachs, New York", "position": "Vice President - Tech M&A"},
+        {"dates": "2001 - 2011", "location": "US Army Armor Branch", "position": "Various Command & Staff"}
+      ],
+      "awards_prior": "BSM (2), MSM, ARCOM (3), AAM (2), NDSM, ASR, ICM (2)",
+      "awards_38g": "MSM",
+      "credentials": "CFA",
+      "education": "BS Economics, West Point 2001; MBA, Wharton 2011",
+      "training_38g": [
+        {"dates": "2021", "course": "CA Qualification Course"},
+        {"dates": "2022", "course": "Economic Stabilization Course"}
+      ],
+      "clearance_level": "SECRET",
+      "clearance_exp": "May 2027",
+      "passport_personal": "19 JUN 2028",
+      "passport_official": "19 JUN 2028",
+      "languages": [
+        {"language": "Mandarin", "listening": "3", "reading": "2+", "speaking": "3"}
+      ]
+    },
+    {
+      "id": "officer_017",
+      "name": "Danielle M. Foster",
+      "rank": "MAJ",
+      "unit": "352nd Civil Affairs Command",
+      "date_assigned": "01 OCT 2022",
+      "position_title": "Military Government Officer",
+      "mos_skill": "38G - 6D",
+      "skill_plain": "Public Health",
+      "residence": "Baltimore, MD",
+      "civilian_occupation": "Program Director, Johns Hopkins BSPH",
+      "additional_info": "Johns Hopkins faculty directing global health security programs. Expertise in health system strengthening, laboratory capacity building, and pandemic preparedness.\n\nFormer Medical Service Corps officer with deployment to Liberia during Ebola response. Led US military medical coordination with WHO and NGO partners.\n\nSpecializes in infectious disease preparedness, health security assessment, and medical civil-military coordination. Published researcher on health systems in fragile states.\n\nMIL: danielle.m.foster.mil@army.mil\nCIV: dfoster@jhu.edu",
+      "skills": [
+        "Health System Strengthening", "Laboratory Capacity",
+        "Pandemic Preparedness", "Disease Surveillance",
+        "Global Health Security", "Medical CIMIC",
+        "Health Assessment", "Outbreak Response",
+        "Training Development", "Research Methods"
+      ],
+      "deployments": [
+        {"dates": "Oct 2014 - Feb 2015", "mission": "United Assistance", "location": "Liberia", "position": "Medical Plans Officer, JFC-UA"}
+      ],
+      "exercises": [
+        {"event": "Global Medic", "position_dates": "EUCOM / Jul 2023"},
+        {"event": "CSTX", "position_dates": "352 CACOM / Apr 2024"}
+      ],
+      "prior_experience": [
+        {"dates": "2018 - Present", "location": "Johns Hopkins Bloomberg SPH", "position": "Program Director - Global Health Security"},
+        {"dates": "2015 - 2018", "location": "CDC Center for Global Health", "position": "Health Scientist"},
+        {"dates": "2008 - 2015", "location": "US Army Medical Service Corps", "position": "Various Medical Operations"}
+      ],
+      "awards_prior": "MSM, ARCOM (2), AAM (2), NDSM, GWOTEM",
+      "awards_38g": "ARCOM",
+      "credentials": "DrPH; CPH",
+      "education": "BS Nursing, Penn 2008; MPH, Emory 2012; DrPH, Johns Hopkins 2018",
+      "training_38g": [
+        {"dates": "2022", "course": "CA Qualification Course"},
+        {"dates": "2023", "course": "Medical Civil Action Program Course"}
+      ],
+      "clearance_level": "TS",
+      "clearance_exp": "Oct 2028",
+      "passport_personal": "27 MAR 2030",
+      "passport_official": "27 MAR 2030",
+      "languages": [
+        {"language": "French", "listening": "2+", "reading": "2", "speaking": "2"}
+      ]
+    },
+    {
+      "id": "officer_018",
+      "name": "Brian L. Murphy",
+      "rank": "CPT",
+      "unit": "353rd Civil Affairs Command",
+      "date_assigned": "01 MAR 2024",
+      "position_title": "Military Government Officer",
+      "mos_skill": "38G - 6F",
+      "skill_plain": "Infrastructure",
+      "residence": "Seattle, WA",
+      "civilian_occupation": "Grid Modernization Lead, DOE",
+      "additional_info": "Department of Energy engineer leading grid modernization initiatives. Expertise in power systems, renewable energy integration, and critical infrastructure protection.\n\nFormer Engineer officer with deployment to Afghanistan supporting power grid reconstruction. Led assessment and rehabilitation of Kajaki transmission line.\n\nSpecializes in electrical infrastructure assessment, power generation analysis, and energy sector development. Best employed for critical infrastructure assessment and power system planning.\n\nMIL: brian.l.murphy.mil@army.mil\nCIV: brian.murphy@energy.gov",
+      "skills": [
+        "Power Systems", "Grid Modernization",
+        "Renewable Energy", "Critical Infrastructure",
+        "Electrical Engineering", "SCADA Systems",
+        "Energy Policy", "Project Management",
+        "Infrastructure Assessment", "Capacity Building"
+      ],
+      "deployments": [
+        {"dates": "Jun 2017 - Jun 2018", "mission": "OFS", "location": "Afghanistan (Kandahar)", "position": "Power Engineer, USACE TAN"}
+      ],
+      "exercises": [
+        {"event": "CSTX", "position_dates": "353 CACOM / Jul 2024"}
+      ],
+      "prior_experience": [
+        {"dates": "2021 - Present", "location": "DOE Office of Electricity", "position": "Grid Modernization Program Lead"},
+        {"dates": "2018 - 2021", "location": "Bonneville Power Administration", "position": "Transmission Planning Engineer"},
+        {"dates": "2012 - 2018", "location": "US Army Engineer Branch", "position": "Various Engineer Assignments"}
+      ],
+      "awards_prior": "ARCOM (2), AAM (2), NDSM, ASR, ACM",
+      "awards_38g": "",
+      "credentials": "PE (WA)",
+      "education": "BS Electrical Engineering, Washington 2012; MS Power Systems, MIT 2018",
+      "training_38g": [
+        {"dates": "2024", "course": "CA Qualification Course"}
+      ],
+      "clearance_level": "SECRET",
+      "clearance_exp": "Mar 2030",
+      "passport_personal": "11 NOV 2030",
+      "passport_official": "N/A",
+      "languages": []
+    },
+    {
+      "id": "officer_019",
+      "name": "Maria C. Rodriguez",
+      "rank": "MAJ",
+      "unit": "351st Civil Affairs Command",
+      "date_assigned": "15 JAN 2023",
+      "position_title": "Military Government Officer",
+      "mos_skill": "38G - 6A",
+      "skill_plain": "Rule of Law / Legal",
+      "residence": "San Diego, CA",
+      "civilian_occupation": "Immigration Judge, DOJ EOIR",
+      "additional_info": "Department of Justice immigration judge with expertise in asylum law, immigration proceedings, and administrative adjudication. Former ICE attorney and DOJ trial attorney.\n\nFormer JAG officer with deployment to Guantanamo Bay supporting detention operations legal review. Experience with military commissions and law of armed conflict.\n\nNative Spanish speaker with expertise in Latin American legal systems. Best employed for rule of law assessment, judicial capacity building, and detention operations legal support.\n\nMIL: maria.c.rodriguez.mil@army.mil\nCIV: maria.rodriguez@usdoj.gov",
+      "skills": [
+        "Immigration Law", "Administrative Adjudication",
+        "Asylum Law", "Detention Operations",
+        "Military Commissions", "Law of Armed Conflict",
+        "Judicial Training", "Legal System Assessment",
+        "Court Administration", "Spanish Legal Systems"
+      ],
+      "deployments": [
+        {"dates": "Jun 2010 - Dec 2010", "mission": "JTF-GTMO", "location": "Guantanamo Bay", "position": "Legal Advisor, JTF-GTMO"}
+      ],
+      "exercises": [
+        {"event": "PANAMAX", "position_dates": "SOUTHCOM / Aug 2023"},
+        {"event": "CSTX", "position_dates": "351 CACOM / Feb 2024"}
+      ],
+      "prior_experience": [
+        {"dates": "2019 - Present", "location": "DOJ EOIR, San Diego", "position": "Immigration Judge"},
+        {"dates": "2015 - 2019", "location": "ICE Office of Chief Counsel", "position": "Associate Chief Counsel"},
+        {"dates": "2006 - 2015", "location": "US Army JAG Corps", "position": "Various Legal Assignments"}
+      ],
+      "awards_prior": "MSM, ARCOM (3), AAM (2), NDSM, GWOTSM",
+      "awards_38g": "",
+      "credentials": "JD; Bar: CA, DC, CAAF",
+      "education": "BA Political Science, UCSD 2003; JD, Georgetown 2006",
+      "training_38g": [
+        {"dates": "2023", "course": "CA Qualification Course"}
+      ],
+      "clearance_level": "TS",
+      "clearance_exp": "Jan 2029",
+      "passport_personal": "06 APR 2029",
+      "passport_official": "06 APR 2029",
+      "languages": [
+        {"language": "Spanish", "listening": "4", "reading": "4", "speaking": "4"}
+      ]
+    },
+    {
+      "id": "officer_020",
+      "name": "Andrew T. Blackwood",
+      "rank": "LTC",
+      "unit": "352nd Civil Affairs Command",
+      "date_assigned": "01 NOV 2020",
+      "position_title": "Deputy Commander",
+      "mos_skill": "38G - 6Y",
+      "skill_plain": "Intel / Security Sector",
+      "residence": "Tysons Corner, VA",
+      "civilian_occupation": "Director, Chertoff Group",
+      "additional_info": "Chertoff Group director specializing in security sector consulting for foreign governments. Former DHS official and FBI special agent with expertise in counterterrorism and border security.\n\nFormer Infantry officer with multiple combat deployments. Transitioned to FBI and later DHS where he led international security cooperation programs.\n\nExtensive experience in partner nation security force assessment, border security program development, and counter-threat finance. Best employed for security sector reform and CT capacity building.\n\nMIL: andrew.t.blackwood.mil@army.mil\nCIV: ablackwood@chertoffgroup.com",
+      "skills": [
+        "Security Sector Reform", "CT Capacity Building",
+        "Border Security", "Law Enforcement Training",
+        "Intelligence Cooperation", "Threat Finance",
+        "Partner Assessment", "Program Development",
+        "Interagency Operations", "Risk Assessment"
+      ],
+      "deployments": [
+        {"dates": "Mar 2004 - Mar 2005", "mission": "OIF", "location": "Iraq (Mosul)", "position": "Cdr, A/2-325 AIR"},
+        {"dates": "Oct 2001 - Apr 2002", "mission": "OEF", "location": "Afghanistan (Kandahar)", "position": "Plt Ldr, 3/75 RGR"}
+      ],
+      "exercises": [
+        {"event": "CSTX", "position_dates": "352 CACOM / Jun 2022"},
+        {"event": "Austere Challenge", "position_dates": "Israel / May 2023"},
+        {"event": "Bright Star", "position_dates": "Egypt / Sep 2024"}
+      ],
+      "prior_experience": [
+        {"dates": "2018 - Present", "location": "Chertoff Group, Washington DC", "position": "Director - International Security"},
+        {"dates": "2014 - 2018", "location": "DHS Office of International Affairs", "position": "Deputy Director"},
+        {"dates": "2008 - 2014", "location": "FBI National Security Branch", "position": "Supervisory Special Agent"},
+        {"dates": "1998 - 2008", "location": "US Army Infantry/Ranger", "position": "Various Command & Staff"}
+      ],
+      "awards_prior": "BSM-V, BSM (2), PH, MSM, ARCOM (4), AAM (2), CIB, Ranger Tab",
+      "awards_38g": "MSM, ARCOM",
+      "credentials": "",
+      "education": "BS International Relations, West Point 1998; MA Security Studies, Johns Hopkins 2010",
+      "training_38g": [
+        {"dates": "2020", "course": "CA Qualification Course"},
+        {"dates": "2021", "course": "Security Sector Reform Course"},
+        {"dates": "2022", "course": "Counter-Threat Finance Course"}
+      ],
+      "clearance_level": "TS/SCI",
+      "clearance_exp": "Nov 2026",
+      "passport_personal": "23 JUL 2027",
+      "passport_official": "23 JUL 2027",
+      "languages": [
+        {"language": "Arabic", "listening": "2", "reading": "1+", "speaking": "2"},
+        {"language": "Spanish", "listening": "1+", "reading": "1", "speaking": "1+"}
+      ]
+    }
+  ]
+}
