@@ -19,9 +19,12 @@ Military Government Specialist (38G) talent discovery and profile management sys
 
 ### Search Interface (`/search`)
 - Natural language talent discovery using RAG (Retrieval-Augmented Generation)
+- **Streaming responses** - see Claude's recommendations as they generate in real-time
 - Semantic search across officer profiles
 - Conversational refinement with context memory
+- Markdown rendering with full table support (GFM)
 - Officer preview cards with photos and summaries
+- **Smart result grouping** - primary team recommendations separated from also-referenced officers
 - Full profile detail modal with PDF download
 
 ### Card Builder (`/builder`)

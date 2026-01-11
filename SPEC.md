@@ -180,7 +180,7 @@ CREATE TABLE embeddings (
   id INTEGER PRIMARY KEY,
   officer_id TEXT REFERENCES officers(id) UNIQUE,  -- One embedding per officer
   text_content TEXT,              -- Full concatenated text that was embedded
-  embedding BLOB,                 -- Vector from Google text-embedding-004
+  embedding BLOB,                 -- Vector from Azure OpenAI text-embedding-3-small
 
   FOREIGN KEY (officer_id) REFERENCES officers(id) ON DELETE CASCADE
 );
@@ -207,7 +207,7 @@ CREATE TABLE conversations (
 2. **Full session context** - All previous queries and refinements are included. "Now filter by TS clearance" works without restating original query.
 
 3. **Vector search:**
-   - Embed query using Google `text-embedding-004`
+   - Embed query using Azure OpenAI `text-embedding-3-small`
    - Vector similarity search across officer embeddings
    - No structured SQL filters (skills are free text)
    - Embeddings handle synonyms: "threat finance" finds "illicit finance", "financial crimes"
@@ -286,7 +286,7 @@ CREATE TABLE conversations (
 ## API Endpoints
 
 ### POST /api/chat/search
-Handles search conversation with full RAG.
+Handles search conversation with full RAG. **Returns a Server-Sent Events (SSE) stream** for real-time response display.
 
 **Request:**
 ```json
@@ -296,23 +296,32 @@ Handles search conversation with full RAG.
 }
 ```
 
-**Response:**
+**Response (SSE stream):**
+```
+data: {"type": "conversationId", "conversationId": "uuid"}
+
+data: {"type": "text", "content": "I found "}
+
+data: {"type": "text", "content": "3 excellent candidates..."}
+
+data: {"type": "officers", "primaryTeam": [...], "alsoMentioned": [...]}
+
+data: {"type": "done", "proseResponse": "I found 3 excellent candidates..."}
+```
+
+**Officer object format:**
 ```json
 {
-  "conversationId": "uuid",
-  "response": "I found 3 excellent candidates...",
-  "officers": [
-    {
-      "id": "uuid",
-      "name": "MAJ Sarah Rodriguez",
-      "rank": "MAJ",
-      "unit": "352nd CA BDE",
-      "summary": "Threat finance expert with JSOC experience...",
-      "photoUrl": "/api/officers/uuid/photo"
-    }
-  ]
+  "id": "uuid",
+  "name": "MAJ Sarah Rodriguez",
+  "rank": "MAJ",
+  "unit": "352nd CA BDE",
+  "summary": "Threat finance expert with JSOC experience...",
+  "photoUrl": "/api/officers/uuid/photo"
 }
 ```
+
+**Note:** `primaryTeam` contains directly recommended officers in rank order. `alsoMentioned` contains officers referenced in the response (e.g., for risk mitigation) but not part of the core recommendation.
 
 ### POST /api/chat/builder
 Handles card builder conversation.
@@ -373,15 +382,19 @@ Get officer headshot.
 
 ### Search Interface (`/search`)
 - **Left panel:** Chat conversation
-  - Message list (user + assistant)
+  - Message list (user + assistant) with markdown rendering (including tables via GFM)
+  - **Streaming display** - text appears in real-time as Claude generates it
+  - Blinking cursor indicator during streaming
   - Text input with send button
   - Full session memory - refinements build on previous queries
 
 - **Right panel:** Results
   - Officer preview cards appear after searches
+  - **Two sections separated by divider:**
+    - Primary team recommendations (full cards with summary)
+    - "Also Referenced" officers (compact cards, muted styling)
   - Each card shows: photo, name, rank, unit, LLM summary
   - Click card to view full profile/download PDF
-  - Bulk download option for selected cards
 
 ### Card Builder Interface (`/builder`)
 - Chat message list
