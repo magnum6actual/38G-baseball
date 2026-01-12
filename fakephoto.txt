@@ -1,0 +1,16 @@
+Generate a photorealistic, high-resolution official U.S. Army command portrait. You must strictly adhere to the visual style, lighting, camera angle, and background composition of the provided reference image reference.jpg.
+Visual Constraints (based on culbreth.jpg):
+
+Background: A professional smooth grey gradient studio backdrop.
+Props: A U.S. flag positioned on the left side of the frame (viewer's left), slightly out of focus.
+Uniform: Standard Army OCP (Operational Camouflage Pattern) combat uniform. Do NOT add any badges, tabs, or awards (such as Ranger tab, EIB, CIB, Airborne wings, etc.) unless explicitly listed in the JSON data.
+Lighting: Soft, even studio lighting appropriate for an official headshot.
+Subject Instructions (based on the JSON data below):
+
+Appearance: Infer the subject's gender and ethnicity based on the name field. Estimate their age based on education dates and prior_experience years to ensure they look seniority-appropriate.
+Rank: Extract the rank value (e.g., CPT, MAJ, LTC) and generate the correct corresponding Army OCP rank insignia on the center chest tab. OCP rank insignia are embroidered thread (not shiny metal). CPT (Captain) uses black thread double bars, LTC (Lieutenant Colonel) uses black thread oak leaf, and MAJ (Major) uses gold/yellow thread oak leaf. The rank tab should show ONLY the insignia symbol - do NOT add any text like "CPT", "MAJ", or "LTC" on or near the rank.
+Name Tape: Extract the surname from the name field and display it on the nametape (wearer's right chest). The other tape should read "U.S. ARMY".
+Vibe: Adjust the facial expression and demeanor to match the persona suggested by their civilian_occupation and skills (e.g., authoritative, intellectual, seasoned, approachable).
+Output: A photorealistic headshot with a 2:3 aspect ratio.
+
+JSON Data:

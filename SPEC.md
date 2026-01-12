@@ -484,11 +484,18 @@ Keep it simple for the prototype:
 
 Uses the existing `38g-card-builder` skill infrastructure with photo overlay:
 
-**Two-step process:**
-1. **Fill text fields** - `fill_pdf.py` with pypdf
-2. **Overlay headshot** - PyMuPDF (fitz) places image at photo coordinates
+**Three-step process:**
+1. **Fill text fields** - `fill_pdf.py` with pypdf fills form fields
+2. **Flatten form fields** - PyMuPDF converts editable fields to static content (required for proper image rendering)
+3. **Overlay headshot** - PyMuPDF (fitz) places image at photo coordinates
 
-**Template:** `38g-card-builder/assets/template.pdf` (with blank photo area - no placeholder image)
+**Photo placement coordinates** (Field '8' in template):
+- Position: x=47, y=111
+- Size: 104x154 pixels
+
+**Template:** `38g-card-builder/assets/template.pdf` (with blank photo area)
+
+**Python environment:** Requires venv with pypdf and pymupdf installed. The application auto-detects `./venv/bin/python3`.
 
 **Script:** `38g-card-builder/scripts/fill_pdf.py`
 ```bash
@@ -521,11 +528,22 @@ python fill_pdf.py <template.pdf> <field_values.json> <output.pdf>
 
 This is **seed data only** - structured for convenience in generating test PDFs. The production system stores free text, not this structured format.
 
+**Generated assets:**
+- `generated_photos/` - AI-generated headshots for all 20 officers (created via Gemini 3 Pro)
+- `generated_pdfs/` - Baseball card PDFs for all 20 officers
+
+**Generation scripts** (in `scripts/`):
+- `generate-fake-photos.ts` - Uses `fakephoto.txt` prompt + `reference.jpeg` style guide
+- `test-pdf-generation.ts` - Generates PDFs from fictional officer JSON
+- `import-photos-pdfs.ts` - Imports generated files into database `photo_blob` and `pdf_blob` columns
+
 **Seed process:**
 1. Transform JSON officers → free text fields for database
-2. Generate PDFs using the structured data directly (one-time seed)
-3. Generate embeddings from the text content
-4. Generate LLM summaries for each officer
+2. Generate AI headshots using Gemini 3 Pro Image Preview
+3. Generate PDFs using the structured data
+4. Import photos and PDFs into database
+5. Generate embeddings from the text content
+6. Generate LLM summaries for each officer
 
 ## Future Features (Out of Scope for Prototype)
 

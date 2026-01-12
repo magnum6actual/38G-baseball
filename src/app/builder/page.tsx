@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, KeyboardEvent } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 
@@ -18,6 +18,8 @@ type BuilderState = 'interviewing' | 'headshot' | 'generating' | 'complete';
 interface BuilderProfile {
   name?: string;
   rank?: string;
+  unit?: string;
+  clearance_level?: string;
   [key: string]: unknown;
 }
 
@@ -32,6 +34,7 @@ export default function BuilderPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [state, setState] = useState<BuilderState>('interviewing');
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [processedFileNames, setProcessedFileNames] = useState<string[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [profile, setProfile] = useState<BuilderProfile>({});
 
@@ -46,6 +49,28 @@ export default function BuilderPage() {
   const [generatedPdfUrl, setGeneratedPdfUrl] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Adjust textarea height based on content (up to 4 lines, then scroll)
+  const adjustTextareaHeight = useCallback(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    // Reset height to auto to get the correct scrollHeight
+    textarea.style.height = 'auto';
+    // Set height to scrollHeight, capped at max-height (handled by CSS)
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
+  }, []);
+
+  // Reset textarea height when input is cleared (after sending)
+  useEffect(() => {
+    if (input === '') {
+      const textarea = textareaRef.current;
+      if (textarea) {
+        textarea.style.height = 'auto';
+      }
+    }
+  }, [input]);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -133,22 +158,13 @@ export default function BuilderPage() {
     setIsLoading(true);
 
     try {
-      // Prepare documents if any were recently uploaded
-      const documents: string[] = [];
-      for (const file of uploadedFiles) {
-        if (file.type.includes('text') || file.name.endsWith('.txt') || file.name.endsWith('.md')) {
-          const base64 = await fileToBase64(file);
-          documents.push(base64);
-        }
-      }
-
+      // Documents are now auto-processed on upload, so we just send the message
       const response = await fetch('/api/chat/builder', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           conversationId,
           message: userMessage,
-          documents: documents.length > 0 ? documents : undefined,
         }),
       });
 
@@ -157,56 +173,248 @@ export default function BuilderPage() {
         throw new Error(error.error || 'Builder failed');
       }
 
-      const data = await response.json();
-
-      setConversationId(data.conversationId);
-      setMessages((prev) => [
-        ...prev,
-        { role: 'assistant', content: data.response },
-      ]);
-
-      // Update state if changed
-      if (data.state && data.state !== state) {
-        setState(data.state);
+      // Handle SSE streaming response
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error('No response body');
       }
 
-      // Update profile
-      if (data.profile) {
-        setProfile(data.profile);
-      }
+      const decoder = new TextDecoder();
+      let assistantMessage = '';
+      let newConversationId = conversationId;
+      let newState = state;
+      let newProfile = profile;
 
-      // Clear uploaded files after they've been processed
-      if (documents.length > 0) {
-        setUploadedFiles([]);
+      // Add empty assistant message that we'll update
+      setMessages((prev) => [...prev, { role: 'assistant', content: '' }]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+
+              if (data.type === 'conversationId') {
+                newConversationId = data.conversationId;
+                setConversationId(data.conversationId);
+              } else if (data.type === 'text') {
+                assistantMessage += data.content;
+                setMessages((prev) => {
+                  const updated = [...prev];
+                  updated[updated.length - 1] = {
+                    role: 'assistant',
+                    content: assistantMessage,
+                  };
+                  return updated;
+                });
+              } else if (data.type === 'state') {
+                newState = data.state;
+                setState(data.state);
+                // Enable input as soon as we get state (text is done)
+                setIsLoading(false);
+              } else if (data.type === 'profile') {
+                newProfile = data.profile;
+                setProfile(data.profile);
+              } else if (data.type === 'done') {
+                // Final state update
+                if (data.state) setState(data.state);
+                if (data.profile) setProfile(data.profile);
+                setIsLoading(false);
+              } else if (data.type === 'error') {
+                throw new Error(data.error);
+              }
+            } catch (parseError) {
+              // Ignore JSON parse errors for incomplete chunks
+            }
+          }
+        }
       }
     } catch (error) {
       console.error('Builder error:', error);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'assistant',
-          content: `I encountered an error: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`,
-        },
-      ]);
+      setMessages((prev) => {
+        // Remove empty assistant message if present
+        const filtered = prev.filter(
+          (m, i) => !(i === prev.length - 1 && m.role === 'assistant' && m.content === '')
+        );
+        return [
+          ...filtered,
+          {
+            role: 'assistant',
+            content: `I encountered an error: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`,
+          },
+        ];
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Track files currently being processed to avoid double-processing
+  const processingFilesRef = useRef<Set<string>>(new Set());
+
+  // Auto-process uploaded documents as a chat turn
+  const processDocumentUpload = useCallback(async (files: File[]) => {
+    // Filter out files already being processed
+    const newFiles = files.filter(f => !processingFilesRef.current.has(f.name));
+    if (newFiles.length === 0 || isLoading) return;
+
+    // Mark these files as being processed
+    newFiles.forEach(f => processingFilesRef.current.add(f.name));
+
+    setIsLoading(true);
+
+    try {
+      // Prepare documents with filenames
+      const documents: Array<{ filename: string; content: string }> = [];
+      for (const file of newFiles) {
+        const base64 = await fileToBase64(file);
+        documents.push({ filename: file.name, content: base64 });
+      }
+
+      // Add a user message about the upload
+      const fileNames = newFiles.map(f => f.name).join(', ');
+      const userMessage = newFiles.length === 1
+        ? `I've uploaded a document: ${fileNames}`
+        : `I've uploaded ${newFiles.length} documents: ${fileNames}`;
+
+      setMessages((prev) => [...prev, { role: 'user', content: userMessage }]);
+
+      const response = await fetch('/api/chat/builder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          conversationId,
+          message: userMessage,
+          documents,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Builder failed');
+      }
+
+      // Handle SSE streaming response
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error('No response body');
+      }
+
+      const decoder = new TextDecoder();
+      let assistantMessage = '';
+
+      // Add empty assistant message that we'll update
+      setMessages((prev) => [...prev, { role: 'assistant', content: '' }]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+
+              if (data.type === 'conversationId') {
+                setConversationId(data.conversationId);
+              } else if (data.type === 'text') {
+                assistantMessage += data.content;
+                setMessages((prev) => {
+                  const updated = [...prev];
+                  updated[updated.length - 1] = {
+                    role: 'assistant',
+                    content: assistantMessage,
+                  };
+                  return updated;
+                });
+              } else if (data.type === 'state') {
+                setState(data.state);
+                // Enable input as soon as we get state (text is done)
+                setIsLoading(false);
+              } else if (data.type === 'profile') {
+                setProfile(data.profile);
+              } else if (data.type === 'done') {
+                if (data.state) setState(data.state);
+                if (data.profile) setProfile(data.profile);
+                setIsLoading(false);
+              } else if (data.type === 'error') {
+                throw new Error(data.error);
+              }
+            } catch (parseError) {
+              // Ignore JSON parse errors for incomplete chunks
+            }
+          }
+        }
+      }
+
+      // Add to processed files list and clear from pending
+      setProcessedFileNames((prev) => [...prev, ...newFiles.map(f => f.name)]);
+      setUploadedFiles((prev) => prev.filter(f => !newFiles.includes(f)));
+      // Clear from processing tracker
+      newFiles.forEach(f => processingFilesRef.current.delete(f.name));
+    } catch (error) {
+      console.error('Document upload error:', error);
+      // Clear from processing tracker on error
+      newFiles.forEach(f => processingFilesRef.current.delete(f.name));
+      // Also remove from uploadedFiles so user can retry
+      setUploadedFiles((prev) => prev.filter(f => !newFiles.includes(f)));
+      setMessages((prev) => {
+        const filtered = prev.filter(
+          (m, i) => !(i === prev.length - 1 && m.role === 'assistant' && m.content === '')
+        );
+        return [
+          ...filtered,
+          {
+            role: 'assistant',
+            content: `I encountered an error processing your document: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`,
+          },
+        ];
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [conversationId, isLoading, fileToBase64]);
+
+  // Process any pending files when loading completes
+  useEffect(() => {
+    if (!isLoading && uploadedFiles.length > 0) {
+      // Find files not yet processed
+      const pendingFiles = uploadedFiles.filter(f => !processingFilesRef.current.has(f.name));
+      if (pendingFiles.length > 0) {
+        processDocumentUpload(pendingFiles);
+      }
+    }
+  }, [isLoading, uploadedFiles, processDocumentUpload]);
+
   const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files) {
-      setUploadedFiles((prev) => [...prev, ...Array.from(files)]);
+    if (files && files.length > 0) {
+      const fileArray = Array.from(files);
+      setUploadedFiles((prev) => [...prev, ...fileArray]);
+      // Auto-process the uploaded files
+      processDocumentUpload(fileArray);
     }
-  }, []);
+  }, [processDocumentUpload]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     const files = e.dataTransfer.files;
-    if (files) {
-      setUploadedFiles((prev) => [...prev, ...Array.from(files)]);
+    if (files && files.length > 0) {
+      const fileArray = Array.from(files);
+      setUploadedFiles((prev) => [...prev, ...fileArray]);
+      // Auto-process the dropped files
+      processDocumentUpload(fileArray);
     }
-  }, []);
+  }, [processDocumentUpload]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -366,6 +574,7 @@ export default function BuilderPage() {
       },
     ]);
     setUploadedFiles([]);
+    setProcessedFileNames([]);
     setState('interviewing');
     setConversationId(null);
     setProfile({});
@@ -377,10 +586,10 @@ export default function BuilderPage() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-8rem)]">
+    <div className="flex h-[calc(100vh-8rem)] overflow-hidden">
       {/* Main Chat Panel */}
-      <div className="flex-1 flex flex-col">
-        <div className="p-4 border-b bg-muted/50 flex items-center justify-between">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <div className="p-4 border-b bg-muted/50 flex items-center justify-between flex-shrink-0">
           <div>
             <h2 className="font-semibold">Card Builder</h2>
             <p className="text-sm text-muted-foreground">
@@ -391,7 +600,7 @@ export default function BuilderPage() {
         </div>
 
         {/* Messages */}
-        <ScrollArea className="flex-1 p-4">
+        <div className="flex-1 overflow-y-auto p-4">
           <div className="space-y-4 max-w-3xl mx-auto">
             {messages.map((message, index) => (
               <div
@@ -407,11 +616,17 @@ export default function BuilderPage() {
                       : 'bg-muted'
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                  {message.role === 'user' ? (
+                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                  ) : (
+                    <div className="text-sm prose prose-sm prose-neutral dark:prose-invert max-w-none prose-p:my-1 prose-headings:my-2 prose-ul:my-1 prose-li:my-0">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
-            {isLoading && (
+            {isLoading && messages[messages.length - 1]?.role !== 'assistant' && (
               <div className="flex justify-start">
                 <div className="bg-muted rounded-lg px-4 py-3">
                   <p className="text-sm text-muted-foreground animate-pulse">Thinking...</p>
@@ -420,21 +635,36 @@ export default function BuilderPage() {
             )}
             <div ref={messagesEndRef} />
           </div>
-        </ScrollArea>
+        </div>
 
         {/* Input */}
-        <form onSubmit={handleSubmit} className="p-4 border-t">
-          <div className="max-w-3xl mx-auto flex gap-2">
-            <Input
+        <form onSubmit={handleSubmit} className="p-4 border-t flex-shrink-0">
+          <div className="max-w-3xl mx-auto flex gap-2 items-end">
+            <Textarea
+              ref={textareaRef}
               value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Type your response..."
+              onChange={(e) => {
+                setInput(e.target.value);
+                adjustTextareaHeight();
+              }}
+              onKeyDown={(e: KeyboardEvent<HTMLTextAreaElement>) => {
+                // Submit on Enter (without Shift)
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  if (input.trim() && !isLoading && state !== 'generating' && state !== 'complete') {
+                    handleSubmit(e as unknown as React.FormEvent);
+                  }
+                }
+              }}
+              placeholder="Type your response... (Enter to send, Shift+Enter for new line)"
               disabled={isLoading || state === 'generating' || state === 'complete'}
-              className="flex-1"
+              className="flex-1 resize-none min-h-[40px] max-h-[120px] overflow-y-auto"
+              rows={1}
             />
             <Button
               type="submit"
               disabled={isLoading || !input.trim() || state === 'generating' || state === 'complete'}
+              className="h-10"
             >
               Send
             </Button>
@@ -443,64 +673,114 @@ export default function BuilderPage() {
       </div>
 
       {/* Side Panel */}
-      <div className="w-80 flex flex-col border-l bg-muted/30">
-        {/* Document Upload Section */}
-        <div className="p-4 border-b">
-          <h3 className="font-semibold text-sm mb-2">Documents</h3>
-          <div
-            className="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            onClick={() => document.getElementById('file-upload')?.click()}
-          >
-            <input
-              id="file-upload"
-              type="file"
-              multiple
-              className="hidden"
-              onChange={handleFileUpload}
-              accept=".txt,.md,.pdf,.doc,.docx"
-            />
-            <p className="text-sm text-muted-foreground">
-              Drop files here or click to upload
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Resume, certifications, etc.
-            </p>
-          </div>
-          {uploadedFiles.length > 0 && (
-            <div className="mt-2 space-y-1">
-              {uploadedFiles.map((file, index) => (
-                <div
-                  key={index}
-                  className="text-xs bg-muted rounded px-2 py-1 truncate flex items-center justify-between"
-                >
-                  <span className="truncate">{file.name}</span>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
-                    }}
-                    className="text-muted-foreground hover:text-foreground ml-2"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
+      <div className="w-80 flex-shrink-0 flex flex-col border-l bg-muted/30 overflow-hidden">
+        <div className="flex-1 overflow-y-auto">
+          {/* Step 1: Documents Section */}
+          <div className={`p-4 border-b ${state !== 'interviewing' ? 'opacity-60' : ''}`}>
+            <div className="flex items-center gap-2 mb-2">
+              <span className={`flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold ${
+                state === 'interviewing'
+                  ? 'bg-[#FFD700] text-black'
+                  : 'bg-green-500 text-white'
+              }`}>
+                {state === 'interviewing' ? '1' : '✓'}
+              </span>
+              <h3 className="font-semibold text-sm">Documents</h3>
             </div>
-          )}
-        </div>
 
-        <Separator />
+            {state === 'interviewing' ? (
+              <>
+                <div
+                  className="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
+                  onDrop={handleDrop}
+                  onDragOver={handleDragOver}
+                  onClick={() => document.getElementById('file-upload')?.click()}
+                >
+                  <input
+                    id="file-upload"
+                    type="file"
+                    multiple
+                    className="hidden"
+                    onChange={handleFileUpload}
+                    accept=".txt,.md,.pdf,.doc,.docx"
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Drop files here or click to upload
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Resume, certifications, etc.
+                  </p>
+                </div>
+                {uploadedFiles.length > 0 && (
+                  <div className="mt-2 space-y-1">
+                    <p className="text-xs text-muted-foreground">Processing...</p>
+                    {uploadedFiles.map((file, index) => (
+                      <div
+                        key={index}
+                        className="text-xs bg-yellow-500/20 rounded px-2 py-1 truncate flex items-center justify-between"
+                      >
+                        <span className="truncate">{file.name}</span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
+                          }}
+                          className="text-muted-foreground hover:text-foreground ml-2"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : null}
 
-        {/* Headshot Section - Show in headshot state */}
-        {(state === 'headshot' || state === 'generating' || state === 'complete') && (
-          <div className="p-4 border-b">
-            <h3 className="font-semibold text-sm mb-2">Headshot</h3>
+            {processedFileNames.length > 0 && (
+              <div className={state === 'interviewing' ? 'mt-2 space-y-1' : 'space-y-1'}>
+                {state !== 'interviewing' && <p className="text-xs text-muted-foreground mb-1">Uploaded:</p>}
+                {processedFileNames.map((name, index) => (
+                  <div
+                    key={index}
+                    className="text-xs bg-green-500/20 rounded px-2 py-1 truncate flex items-center gap-1"
+                  >
+                    <span className="text-green-600">✓</span>
+                    <span className="truncate">{name}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
-            {!headshotFile ? (
+          {/* Step 2: Headshot Section */}
+          <div className={`p-4 border-b ${
+            state === 'headshot'
+              ? 'bg-[#FFD700]/10 border-l-4 border-l-[#FFD700]'
+              : state === 'interviewing'
+                ? 'opacity-50'
+                : ''
+          }`}>
+            <div className="flex items-center gap-2 mb-2">
+              <span className={`flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold ${
+                state === 'headshot'
+                  ? 'bg-[#FFD700] text-black'
+                  : state === 'interviewing'
+                    ? 'bg-muted-foreground/30 text-muted-foreground'
+                    : 'bg-green-500 text-white'
+              }`}>
+                {(state === 'generating' || state === 'complete') ? '✓' : '2'}
+              </span>
+              <h3 className="font-semibold text-sm">Headshot</h3>
+              {state === 'headshot' && <Badge variant="outline" className="text-xs">Active</Badge>}
+            </div>
+
+            {state === 'interviewing' ? (
+              <p className="text-xs text-muted-foreground">
+                Complete the interview to upload your photo
+              </p>
+            ) : !headshotFile ? (
               <div
-                className="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
+                className="border-2 border-dashed border-[#FFD700]/50 rounded-lg p-4 text-center cursor-pointer hover:bg-[#FFD700]/10 transition-colors"
                 onDrop={handleHeadshotDrop}
                 onDragOver={handleDragOver}
                 onClick={() => document.getElementById('headshot-upload')?.click()}
@@ -604,61 +884,24 @@ export default function BuilderPage() {
               </div>
             )}
           </div>
-        )}
-
-        {/* Progress/Status Section */}
-        <div className="p-4 flex-1">
-          <h3 className="font-semibold text-sm mb-2">Progress</h3>
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <div
-                className={`w-2 h-2 rounded-full ${
-                  state === 'interviewing' ? 'bg-[#FFD700] animate-pulse' : 'bg-green-500'
-                }`}
-              />
-              <span className="text-sm">Interview</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div
-                className={`w-2 h-2 rounded-full ${
-                  state === 'headshot'
-                    ? 'bg-[#FFD700] animate-pulse'
-                    : state === 'generating' || state === 'complete'
-                    ? 'bg-green-500'
-                    : 'bg-muted-foreground/30'
-                }`}
-              />
-              <span className="text-sm">Headshot</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div
-                className={`w-2 h-2 rounded-full ${
-                  state === 'generating'
-                    ? 'bg-[#FFD700] animate-pulse'
-                    : state === 'complete'
-                    ? 'bg-green-500'
-                    : 'bg-muted-foreground/30'
-                }`}
-              />
-              <span className="text-sm">Generate Card</span>
-            </div>
-          </div>
 
           {/* Profile Summary */}
           {Object.keys(profile).length > 0 && (
-            <div className="mt-4 pt-4 border-t">
+            <div className="p-4 border-t">
               <h4 className="text-xs font-medium text-muted-foreground mb-2">Profile Data</h4>
               <div className="text-xs space-y-1">
-                {profile.name && <p><span className="text-muted-foreground">Name:</span> {profile.name}</p>}
-                {profile.rank && <p><span className="text-muted-foreground">Rank:</span> {profile.rank}</p>}
+                {profile.name && <p><span className="text-muted-foreground">Name:</span> {String(profile.name)}</p>}
+                {profile.rank && <p><span className="text-muted-foreground">Rank:</span> {String(profile.rank)}</p>}
+                {profile.unit && <p><span className="text-muted-foreground">Unit:</span> {String(profile.unit)}</p>}
+                {profile.clearance_level && <p><span className="text-muted-foreground">Clearance:</span> {String(profile.clearance_level)}</p>}
               </div>
             </div>
           )}
         </div>
 
-        {/* Completion Actions */}
+        {/* Completion Actions - stays at bottom */}
         {state === 'complete' && (
-          <div className="p-4 border-t space-y-2">
+          <div className="p-4 border-t space-y-2 flex-shrink-0">
             {generatedPdfUrl && (
               <Button className="w-full" asChild>
                 <a href={generatedPdfUrl} download="38G_Baseball_Card.pdf">

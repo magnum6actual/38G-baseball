@@ -148,9 +148,50 @@ Key information to gather:
 - Additional information narrative (~200 words)
 - Any supplemental detail they want searchable but not on the card
 
-When the user indicates they're ready (says "I'm done", "generate my card", etc.), confirm and transition to card generation.
+When you have gathered enough information OR the user indicates they're ready (says "I'm done", "generate my card", etc.):
+1. Confirm you have their information
+2. Ask them to upload their headshot photo
+3. Include the marker [INTERVIEW_COMPLETE] at the end of your response (before the JSON block)
 
-Be conversational and efficient - group related questions when natural. Never be robotic or follow a rigid script.`;
+Be conversational and efficient - group related questions when natural. Never be robotic or follow a rigid script.
+
+CRITICAL: After EVERY response, you MUST include a JSON block with ALL profile data collected so far. Use this exact format at the END of your response:
+
+\`\`\`json
+{
+  "name": "...",
+  "rank": "...",
+  "unit": "...",
+  "position_title": "...",
+  "date_assigned": "...",
+  "mos_skill": "...",
+  "skill_plain": "...",
+  "residence": "...",
+  "civilian_occupation": "...",
+  "clearance_level": "...",
+  "clearance_exp": "...",
+  "skills": ["skill1", "skill2"],
+  "deployments": [{"dates": "...", "mission": "...", "location": "...", "position": "..."}],
+  "prior_experience": [{"dates": "...", "location": "...", "position": "..."}],
+  "training_38g": [{"dates": "...", "course": "..."}],
+  "exercises": [{"event": "...", "position_dates": "..."}],
+  "awards_prior": "...",
+  "awards_38g": "...",
+  "credentials": "...",
+  "education": "...",
+  "passport_personal": "...",
+  "passport_official": "...",
+  "languages": [{"language": "...", "listening": "...", "reading": "...", "speaking": "..."}],
+  "additional_info": "...",
+  "detail_data": "..."
+}
+\`\`\`
+
+Field guidance:
+- "additional_info": A ~200 word narrative for the card highlighting unique value
+- "detail_data": IMPORTANT - Store ALL supplemental information from uploaded documents that doesn't fit other fields. This includes: full work history details, project descriptions, technical specifics, methodologies used, organizations worked with, geographic experience, specialized knowledge, notable achievements, publications, etc. This field is searchable but not displayed on the card - be comprehensive.
+
+Only include fields that have been provided - omit fields with no data. Update this JSON with each new piece of information learned.`;
 
 /**
  * Transform free-text officer profile into PDF field format

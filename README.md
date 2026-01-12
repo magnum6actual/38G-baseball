@@ -6,14 +6,18 @@ Military Government Specialist (38G) talent discovery and profile management sys
 
 **Working:**
 - Search interface with RAG-powered officer discovery
+- Streaming responses with real-time text display
+- Markdown rendering with GFM table support
+- Smart result grouping (primary team vs also-referenced officers)
+- Officer detail modal with photo display
 - Card Builder interview flow UI
 - Headshot generation via Gemini 3 Pro Image Preview (with auto-resize for large photos)
-- Database seeded with 20 fictional officers
+- PDF generation with headshot overlay (flatten form fields → insert image)
+- Database seeded with 20 fictional officers (with AI-generated photos and PDFs)
 - All API integrations tested and functional
 
 **Needs Testing:**
 - Full Card Builder end-to-end flow (interview → headshot → PDF generation)
-- PDF generation with headshot overlay
 
 ## Features
 
@@ -56,9 +60,15 @@ npm install
 
 ### 2. Install Python dependencies
 
+Create a virtual environment and install dependencies:
+
 ```bash
+python3 -m venv venv
+source venv/bin/activate
 pip install pypdf pymupdf
 ```
+
+The application will automatically use the venv Python when available.
 
 ### 3. Configure environment
 
@@ -180,14 +190,28 @@ docker run -p 3000:3000 \
 6. Generate your baseball card PDF
 7. Your profile is automatically added to the search database
 
-## Test Scripts
+## Utility Scripts
 
 Located in `scripts/`:
+
+**Test scripts:**
 - `test-headshot-module.ts` - Test Gemini headshot generation directly
 - `test-aistudio-gemini3.ts` - Test Gemini 3 Pro Image Preview API
 - `test-services.ts` - Test all API connections
 
+**Data generation scripts:**
+- `generate-fake-photos.ts` - Generate AI headshots for fictional officers using Gemini 3 Pro
+- `test-pdf-generation.ts` - Generate baseball card PDFs for fictional officers
+- `import-photos-pdfs.ts` - Import generated photos and PDFs into the database
+
 Run with: `npx tsx scripts/<script-name>.ts`
+
+Example: Generate all test data:
+```bash
+npx tsx scripts/generate-fake-photos.ts     # Generate all 20 photos
+npx tsx scripts/test-pdf-generation.ts officer_001  # Generate one PDF
+npx tsx scripts/import-photos-pdfs.ts       # Import into database
+```
 
 ## License
 

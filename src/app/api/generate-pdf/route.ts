@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
         credentials: profile.credentials || '',
         awards: [profile.awards_prior, profile.awards_38g].filter(Boolean).join('; ') || '',
         additional_info: profile.additional_info || '',
-        detail_data: JSON.stringify(profile),
+        detail_data: profile.detail_data || JSON.stringify(profile),
         summary,
         pdf_blob: pdfBuffer,
         photo_blob: headshotBase64 ? Buffer.from(headshotBase64, 'base64') : null,
@@ -77,6 +77,7 @@ export async function POST(request: NextRequest) {
         profile.civilian_occupation,
         profile.skills?.join(', '),
         profile.additional_info,
+        profile.detail_data,
         summary,
       ].filter(Boolean).join(' ');
 

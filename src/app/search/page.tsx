@@ -393,30 +393,38 @@ export default function SearchPage() {
           {selectedOfficer && (
             <>
               <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <Badge>{selectedOfficer.rank}</Badge>
-                  {selectedOfficer.name}
-                </DialogTitle>
+                <div className="flex gap-4">
+                  {/* Officer Photo */}
+                  {selectedOfficer.hasPhoto && selectedOfficer.photoUrl && (
+                    <div className="flex-shrink-0">
+                      <img
+                        src={selectedOfficer.photoUrl}
+                        alt={selectedOfficer.name}
+                        className="w-24 h-32 object-cover rounded-md border"
+                      />
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <DialogTitle className="flex items-center gap-2">
+                      <Badge>{selectedOfficer.rank}</Badge>
+                      {selectedOfficer.name}
+                    </DialogTitle>
+                    <p className="text-sm text-muted-foreground mt-1">{selectedOfficer.unit}</p>
+                    <p className="text-sm mt-1">{selectedOfficer.civilian_occupation}</p>
+                  </div>
+                </div>
               </DialogHeader>
 
               <div className="space-y-4">
                 {/* Basic Info */}
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <span className="text-muted-foreground">Unit:</span>
-                    <p className="font-medium">{selectedOfficer.unit}</p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Clearance:</span>
-                    <p className="font-medium">{selectedOfficer.clearance_level}</p>
-                  </div>
-                  <div>
                     <span className="text-muted-foreground">MOS/Skill:</span>
                     <p className="font-medium">{selectedOfficer.mos_skill}</p>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Civilian Job:</span>
-                    <p className="font-medium">{selectedOfficer.civilian_occupation}</p>
+                    <span className="text-muted-foreground">Clearance:</span>
+                    <p className="font-medium">{selectedOfficer.clearance_level}</p>
                   </div>
                 </div>
 

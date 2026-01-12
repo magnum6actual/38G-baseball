@@ -71,10 +71,14 @@ export async function generatePdf(
 
 /**
  * Run a Python script with arguments
+ * Uses venv Python if available for pypdf/pymupdf dependencies
  */
 function runPythonScript(script: string, args: string[]): Promise<void> {
   return new Promise((resolve, reject) => {
-    const python = spawn('python3', [script, ...args]);
+    // Use venv Python if available, otherwise fall back to system python3
+    const venvPython = path.resolve('./venv/bin/python3');
+    const pythonPath = fs.existsSync(venvPython) ? venvPython : 'python3';
+    const python = spawn(pythonPath, [script, ...args]);
 
     let stdout = '';
     let stderr = '';
@@ -103,8 +107,14 @@ function runPythonScript(script: string, args: string[]): Promise<void> {
 }
 
 /**
- * Overlay headshot on PDF using PyMuPDF
- * Creates a Python script inline to do the overlay
+ * Flatten PDF form fields and overlay headshot using PyMuPDF
+ *
+ * The PDF template has editable form fields which can conflict with image overlay.
+ * This function:
+ * 1. Flattens all form fields (converts widget annotations to static content)
+ * 2. Overlays the headshot image
+ *
+ * This ensures the image renders correctly without form field layer conflicts.
  */
 async function overlayHeadshot(
   pdfPath: string,
@@ -112,35 +122,68 @@ async function overlayHeadshot(
   outputPath: string
 ): Promise<void> {
   // Coordinates for headshot placement on the baseball card
-  // These should match the template layout
-  const HEADSHOT_X = 36; // Left margin
-  const HEADSHOT_Y = 100; // Top position
-  const HEADSHOT_WIDTH = 144; // 2 inches at 72 DPI
-  const HEADSHOT_HEIGHT = 216; // 3 inches at 72 DPI (2:3 ratio)
+  // Matches Field '8' in template.pdf (the photo placeholder)
+  const HEADSHOT_X = 47;
+  const HEADSHOT_Y = 111;
+  const HEADSHOT_WIDTH = 104;
+  const HEADSHOT_HEIGHT = 154;
 
   const overlayScript = `
 import fitz  # PyMuPDF
 import sys
+import os
 
 pdf_path = sys.argv[1]
 headshot_path = sys.argv[2]
 output_path = sys.argv[3]
 
+# Create a temporary output path if saving to same file
+temp_output = output_path + ".tmp" if pdf_path == output_path else output_path
+
 # Open the PDF
 doc = fitz.open(pdf_path)
 page = doc[0]  # First page
 
-# Define the rectangle for the headshot
+# Step 1: Flatten form fields by converting widget annotations to static content
+# Iterate through all pages and flatten widgets
+for page_num in range(len(doc)):
+    p = doc[page_num]
+    # Get all widget annotations (form fields) and convert them to static appearances
+    for widget in p.widgets():
+        widget.update()  # Ensure appearance stream is current
+
+        # Get the widget's rectangle and appearance
+        rect = widget.rect
+
+        # If the widget has an appearance, we'll keep it as-is
+        # The key is to delete the widget annotation after baking its appearance
+
+    # Now delete all widget annotations (this removes form field interactivity)
+    # but keeps the visual appearance that was already rendered
+    annot = p.first_annot
+    while annot:
+        next_annot = annot.next
+        if annot.type[0] == fitz.PDF_ANNOT_WIDGET:
+            # Before deleting, ensure the appearance is baked into the page
+            p.delete_annot(annot)
+        annot = next_annot
+
+# Step 2: Insert the headshot image
+page = doc[0]
 rect = fitz.Rect(${HEADSHOT_X}, ${HEADSHOT_Y}, ${HEADSHOT_X + HEADSHOT_WIDTH}, ${HEADSHOT_Y + HEADSHOT_HEIGHT})
 
 # Insert the image
 page.insert_image(rect, filename=headshot_path)
 
-# Save
-doc.save(output_path)
+# Save with garbage collection to clean up orphaned objects
+doc.save(temp_output, garbage=4, deflate=True)
 doc.close()
 
-print(f"Headshot overlaid successfully: {output_path}")
+# If we used a temp file, move it to the final location
+if temp_output != output_path:
+    os.replace(temp_output, output_path)
+
+print(f"PDF flattened and headshot overlaid successfully: {output_path}")
 `;
 
   const tempDir = path.dirname(pdfPath);

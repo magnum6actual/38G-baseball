@@ -68,9 +68,9 @@ export default function RootLayout({
         </main>
 
         {/* Footer */}
-        <footer className="bg-muted border-t">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <p className="text-sm text-muted-foreground text-center">
+        <footer className="bg-muted border-t flex-shrink-0">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <p className="text-xs text-muted-foreground text-center">
               38G Military Government Specialist Program
             </p>
           </div>

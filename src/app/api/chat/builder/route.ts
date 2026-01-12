@@ -4,15 +4,26 @@ import {
   createConversation,
   getConversationById,
   addMessageToConversation,
-  getDb,
 } from '@/lib/db';
 import {
-  processBuilderMessage,
+  processBuilderMessageStream,
   BuilderContext,
   BuilderProfile,
   BuilderState,
 } from '@/lib/builder';
-import { BuilderChatRequest, BuilderChatResponse, ConversationMessage } from '@/types';
+import { parseDocument } from '@/lib/documents';
+import { ConversationMessage } from '@/types';
+
+interface DocumentUpload {
+  filename: string;
+  content: string; // base64
+}
+
+interface BuilderChatRequest {
+  conversationId?: string;
+  message: string;
+  documents?: DocumentUpload[];
+}
 
 // Store builder contexts in memory (in production, use Redis or database)
 const builderContexts = new Map<string, BuilderContext>();
@@ -68,51 +79,111 @@ export async function POST(request: NextRequest) {
     // Get updated conversation
     conversation = getConversationById(convId)!;
 
-    // Process document content if provided
+    // Process document content if provided (including PDFs)
     let documentContent: string | undefined;
     if (documents && documents.length > 0) {
-      // For now, just decode base64 text documents
-      // In production, use proper document parsing libraries
-      documentContent = documents
-        .map((doc) => {
-          try {
-            // Try to decode as UTF-8 text
-            const buffer = Buffer.from(doc, 'base64');
-            return buffer.toString('utf-8');
-          } catch (e) {
-            return '[Unable to parse document]';
+      const parsedDocs: string[] = [];
+      for (const doc of documents) {
+        try {
+          const text = await parseDocument(doc.content, doc.filename);
+          if (text && text.trim()) {
+            parsedDocs.push(`--- Document: ${doc.filename} ---\n${text}`);
           }
-        })
-        .join('\n\n---\n\n');
+        } catch (e) {
+          console.warn(`Failed to parse document ${doc.filename}:`, e);
+          parsedDocs.push(`--- Document: ${doc.filename} ---\n[Unable to parse document]`);
+        }
+      }
+      if (parsedDocs.length > 0) {
+        documentContent = parsedDocs.join('\n\n');
+      }
     }
 
-    // Process the message
-    const result = await processBuilderMessage(
-      message,
-      conversation.messages.slice(0, -1), // Exclude the message we just added
-      context,
-      documentContent
-    );
+    // Create streaming response using SSE
+    const encoder = new TextEncoder();
+    const finalConvId = convId;
 
-    // Update context
-    builderContexts.set(convId, result.context);
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          // Send conversation ID first
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify({ type: 'conversationId', conversationId: finalConvId })}\n\n`)
+          );
 
-    // Add assistant response to conversation
-    const assistantMessage: ConversationMessage = {
-      role: 'assistant',
-      content: result.response,
-      timestamp: new Date().toISOString(),
-    };
-    addMessageToConversation(convId, assistantMessage);
+          let finalContext: BuilderContext | null = null;
+          let cleanResponse = '';
 
-    const responseData: BuilderChatResponse = {
-      conversationId: convId,
-      response: result.response,
-      state: result.context.state,
-      profile: result.context.profile as Record<string, unknown>,
-    };
+          // Stream the response
+          for await (const chunk of processBuilderMessageStream(
+            message,
+            conversation!.messages.slice(0, -1),
+            context!,
+            documentContent
+          )) {
+            if (chunk.type === 'text') {
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify({ type: 'text', content: chunk.content })}\n\n`)
+              );
+            } else if (chunk.type === 'done') {
+              finalContext = chunk.context;
+              cleanResponse = chunk.cleanResponse;
+            }
+          }
 
-    return NextResponse.json(responseData);
+          if (finalContext) {
+            // Send state update
+            controller.enqueue(
+              encoder.encode(`data: ${JSON.stringify({ type: 'state', state: finalContext.state })}\n\n`)
+            );
+
+            // Send profile update
+            controller.enqueue(
+              encoder.encode(`data: ${JSON.stringify({ type: 'profile', profile: finalContext.profile })}\n\n`)
+            );
+
+            // Send done signal
+            controller.enqueue(
+              encoder.encode(`data: ${JSON.stringify({
+                type: 'done',
+                state: finalContext.state,
+                profile: finalContext.profile
+              })}\n\n`)
+            );
+          }
+
+          // Close stream IMMEDIATELY so client can proceed
+          // This is critical - the browser waits for stream close before processing final events
+          controller.close();
+
+          // Do DB operations AFTER closing stream (non-blocking for user)
+          if (finalContext) {
+            builderContexts.set(finalConvId, finalContext);
+            const assistantMessage: ConversationMessage = {
+              role: 'assistant',
+              content: cleanResponse,
+              timestamp: new Date().toISOString(),
+            };
+            addMessageToConversation(finalConvId, assistantMessage);
+          }
+        } catch (error) {
+          console.error('Builder streaming error:', error);
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify({ type: 'error', error: errorMessage })}\n\n`)
+          );
+          controller.close();
+        }
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
+    });
   } catch (error) {
     console.error('Builder chat error:', error);
 
