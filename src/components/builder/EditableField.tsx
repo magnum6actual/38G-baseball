@@ -67,7 +67,7 @@ export function EditableField({
 
   if (isEditing) {
     const baseInputClass = cn(
-      'w-full bg-white border-2 border-[#FFD700] outline-none px-1 text-[9px]',
+      'w-full bg-white border-2 border-[#FFD700] outline-none px-1 text-[11px]',
       inputClassName
     );
 

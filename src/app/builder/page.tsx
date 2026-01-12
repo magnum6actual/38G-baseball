@@ -345,12 +345,14 @@ export default function BuilderPage() {
   // Process pending files when loading completes
   useEffect(() => {
     if (!isLoading && uploadedFiles.length > 0) {
-      const pendingFiles = uploadedFiles.filter(f => !processingFilesRef.current.has(f.name));
+      const pendingFiles = uploadedFiles.filter(
+        f => !processingFilesRef.current.has(f.name) && !processedFileNames.includes(f.name)
+      );
       if (pendingFiles.length > 0) {
         processDocumentUpload(pendingFiles);
       }
     }
-  }, [isLoading, uploadedFiles, processDocumentUpload]);
+  }, [isLoading, uploadedFiles, processDocumentUpload, processedFileNames]);
 
   const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -536,8 +538,8 @@ export default function BuilderPage() {
         onChange={handleHeadshotUpload}
       />
 
-      {/* Main Chat Panel */}
-      <div className="flex-1 flex flex-col min-w-[400px] overflow-hidden">
+      {/* Main Chat Panel - 30% */}
+      <div className="w-[30%] min-w-[320px] flex-shrink-0 flex flex-col overflow-hidden">
         <div className="p-4 border-b bg-muted/50 flex items-center justify-between flex-shrink-0">
           <div>
             <h2 className="font-semibold">Card Builder</h2>
@@ -701,13 +703,13 @@ export default function BuilderPage() {
         )}
       </div>
 
-      {/* Card Panel */}
-      <div className="w-[700px] flex-shrink-0 flex flex-col border-l bg-muted/20 overflow-hidden">
-        <div className="p-3 border-b bg-muted/50 flex items-center justify-between">
+      {/* Card Panel - 70% */}
+      <div className="flex-1 flex flex-col border-l bg-muted/20 overflow-hidden">
+        <div className="p-2 border-b bg-muted/50 flex items-center justify-between">
           <h3 className="font-semibold text-sm">Card Preview</h3>
           <span className="text-xs text-muted-foreground">Click any field to edit</span>
         </div>
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-y-auto p-2">
           <BaseballCard
             profile={profile}
             headshotPreview={displayHeadshot}
