@@ -10,19 +10,36 @@ import {
   BuilderContext,
   BuilderProfile,
   BuilderState,
+  DocumentUpload,
 } from '@/lib/builder';
-import { parseDocument } from '@/lib/documents';
 import { ConversationMessage } from '@/types';
 
-interface DocumentUpload {
+interface DocumentUploadRequest {
   filename: string;
   content: string; // base64
+}
+
+/**
+ * Get media type from filename extension
+ */
+function getMediaType(filename: string): string {
+  const ext = filename.toLowerCase().split('.').pop();
+  const mediaTypes: Record<string, string> = {
+    'pdf': 'application/pdf',
+    'doc': 'application/msword',
+    'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'txt': 'text/plain',
+    'md': 'text/markdown',
+    'json': 'application/json',
+    'csv': 'text/csv',
+  };
+  return mediaTypes[ext || ''] || 'application/octet-stream';
 }
 
 interface BuilderChatRequest {
   conversationId?: string;
   message: string;
-  documents?: DocumentUpload[];
+  documents?: DocumentUploadRequest[];
 }
 
 // Store builder contexts in memory (in production, use Redis or database)
@@ -79,24 +96,14 @@ export async function POST(request: NextRequest) {
     // Get updated conversation
     conversation = getConversationById(convId)!;
 
-    // Process document content if provided (including PDFs)
-    let documentContent: string | undefined;
+    // Convert documents to format expected by builder (pass directly to Claude)
+    let builderDocuments: DocumentUpload[] | undefined;
     if (documents && documents.length > 0) {
-      const parsedDocs: string[] = [];
-      for (const doc of documents) {
-        try {
-          const text = await parseDocument(doc.content, doc.filename);
-          if (text && text.trim()) {
-            parsedDocs.push(`--- Document: ${doc.filename} ---\n${text}`);
-          }
-        } catch (e) {
-          console.warn(`Failed to parse document ${doc.filename}:`, e);
-          parsedDocs.push(`--- Document: ${doc.filename} ---\n[Unable to parse document]`);
-        }
-      }
-      if (parsedDocs.length > 0) {
-        documentContent = parsedDocs.join('\n\n');
-      }
+      builderDocuments = documents.map(doc => ({
+        filename: doc.filename,
+        content: doc.content,
+        mediaType: getMediaType(doc.filename),
+      }));
     }
 
     // Create streaming response using SSE
@@ -119,7 +126,7 @@ export async function POST(request: NextRequest) {
             message,
             conversation!.messages.slice(0, -1),
             context!,
-            documentContent
+            builderDocuments
           )) {
             if (chunk.type === 'text') {
               controller.enqueue(

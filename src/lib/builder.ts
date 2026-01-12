@@ -4,8 +4,14 @@
  * Handles the conversational interview flow for creating 38G baseball cards.
  */
 
-import { chat, chatStream, BUILDER_SYSTEM_PROMPT, ChatMessage, transformProfileToPdfFields } from './claude';
+import { chat, chatStream, BUILDER_SYSTEM_PROMPT, ChatMessage, transformProfileToPdfFields, DocumentContent, TextContent } from './claude';
 import { ConversationMessage } from '@/types';
+
+export interface DocumentUpload {
+  filename: string;
+  content: string; // base64
+  mediaType: string;
+}
 
 export type BuilderState = 'interviewing' | 'headshot' | 'generating' | 'complete';
 
@@ -275,7 +281,7 @@ export async function processBuilderMessage(
   userMessage: string,
   conversationHistory: ConversationMessage[],
   currentContext: BuilderContext,
-  documentContent?: string
+  documents?: DocumentUpload[]
 ): Promise<{
   response: string;
   context: BuilderContext;
@@ -308,22 +314,11 @@ export async function processBuilderMessage(
   }
 
   // Build the current message with context
-  let messageContent = userMessage;
-
-  // Add document content if provided
-  if (documentContent) {
-    messageContent = `[User uploaded a document with the following content:]
-
-${documentContent}
-
----
-
-User message: ${userMessage}`;
-  }
+  let textContent = userMessage;
 
   // Add state context
   if (newState === 'headshot') {
-    messageContent += `
+    textContent += `
 
 [SYSTEM NOTE: The user is ready for the headshot phase. Acknowledge their progress and ask them to upload their photo. Mention they can optionally specify enhancement requests like "reduce shadows" or "soften wrinkles".]`;
   }
@@ -335,16 +330,45 @@ User message: ${userMessage}`;
     .join('\n');
 
   if (profileSummary) {
-    messageContent += `
+    textContent += `
 
 [Current profile data collected:]
 ${profileSummary}`;
   }
 
-  messages.push({
-    role: 'user',
-    content: messageContent,
-  });
+  // Build message content - either simple string or array with documents
+  if (documents && documents.length > 0) {
+    const contentBlocks: (TextContent | DocumentContent)[] = [];
+
+    // Add documents first
+    for (const doc of documents) {
+      contentBlocks.push({
+        type: 'document',
+        source: {
+          type: 'base64',
+          media_type: doc.mediaType,
+          data: doc.content,
+        },
+      });
+    }
+
+    // Add text message with document context
+    const docNames = documents.map(d => d.filename).join(', ');
+    contentBlocks.push({
+      type: 'text',
+      text: `[User uploaded: ${docNames}]\n\n${textContent}`,
+    });
+
+    messages.push({
+      role: 'user',
+      content: contentBlocks,
+    });
+  } else {
+    messages.push({
+      role: 'user',
+      content: textContent,
+    });
+  }
 
   // Get response from Claude
   const response = await chat(messages, BUILDER_SYSTEM_PROMPT, 2048);
@@ -360,7 +384,7 @@ ${profileSummary}`;
     context: {
       state: newState,
       profile: updatedProfile,
-      extractedFromDocuments: currentContext.extractedFromDocuments || !!documentContent,
+      extractedFromDocuments: currentContext.extractedFromDocuments || !!(documents && documents.length > 0),
     },
   };
 }
@@ -373,7 +397,7 @@ export async function* processBuilderMessageStream(
   userMessage: string,
   conversationHistory: ConversationMessage[],
   currentContext: BuilderContext,
-  documentContent?: string
+  documents?: DocumentUpload[]
 ): AsyncGenerator<{ type: 'text'; content: string } | { type: 'done'; context: BuilderContext; cleanResponse: string }> {
   // Check for state transitions
   let newState = currentContext.state;
@@ -399,20 +423,11 @@ export async function* processBuilderMessageStream(
     });
   }
 
-  let messageContent = userMessage;
-
-  if (documentContent) {
-    messageContent = `[User uploaded a document with the following content:]
-
-${documentContent}
-
----
-
-User message: ${userMessage}`;
-  }
+  // Build the current message with context
+  let textContent = userMessage;
 
   if (newState === 'headshot') {
-    messageContent += `
+    textContent += `
 
 [SYSTEM NOTE: The user is ready for the headshot phase. Acknowledge their progress and ask them to upload their photo. Mention they can optionally specify enhancement requests like "reduce shadows" or "soften wrinkles".]`;
   }
@@ -423,16 +438,45 @@ User message: ${userMessage}`;
     .join('\n');
 
   if (profileSummary) {
-    messageContent += `
+    textContent += `
 
 [Current profile data collected:]
 ${profileSummary}`;
   }
 
-  messages.push({
-    role: 'user',
-    content: messageContent,
-  });
+  // Build message content - either simple string or array with documents
+  if (documents && documents.length > 0) {
+    const contentBlocks: (TextContent | DocumentContent)[] = [];
+
+    // Add documents first
+    for (const doc of documents) {
+      contentBlocks.push({
+        type: 'document',
+        source: {
+          type: 'base64',
+          media_type: doc.mediaType,
+          data: doc.content,
+        },
+      });
+    }
+
+    // Add text message with document context
+    const docNames = documents.map(d => d.filename).join(', ');
+    contentBlocks.push({
+      type: 'text',
+      text: `[User uploaded: ${docNames}]\n\n${textContent}`,
+    });
+
+    messages.push({
+      role: 'user',
+      content: contentBlocks,
+    });
+  } else {
+    messages.push({
+      role: 'user',
+      content: textContent,
+    });
+  }
 
   // Stream response from Claude, filtering out JSON code blocks in real-time
   let fullResponse = '';
@@ -502,7 +546,7 @@ ${profileSummary}`;
     context: {
       state: finalState,
       profile: updatedProfile,
-      extractedFromDocuments: currentContext.extractedFromDocuments || !!documentContent,
+      extractedFromDocuments: currentContext.extractedFromDocuments || !!(documents && documents.length > 0),
     },
     cleanResponse,
   };

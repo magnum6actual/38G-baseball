@@ -21,14 +21,41 @@ const client = new Anthropic({
 // Model name - can be overridden via env var for Azure deployments
 const MODEL_NAME = process.env.CLAUDE_MODEL || (isAzure ? 'claude-opus-4-5' : 'claude-sonnet-4-20250514');
 
+export interface DocumentContent {
+  type: 'document';
+  source: {
+    type: 'base64';
+    media_type: string;
+    data: string;
+  };
+}
+
+export interface TextContent {
+  type: 'text';
+  text: string;
+}
+
+export type MessageContent = string | (TextContent | DocumentContent)[];
+
 export interface ChatMessage {
   role: 'user' | 'assistant';
-  content: string;
+  content: MessageContent;
 }
 
 export interface ClaudeResponse {
   content: string;
   stopReason: string | null;
+}
+
+/**
+ * Convert our ChatMessage content to Anthropic API format
+ */
+function formatMessageContent(content: MessageContent): string | Anthropic.Messages.ContentBlockParam[] {
+  if (typeof content === 'string') {
+    return content;
+  }
+  // Content is already in array format with proper types
+  return content as Anthropic.Messages.ContentBlockParam[];
 }
 
 /**
@@ -45,7 +72,7 @@ export async function chat(
     system: systemPrompt,
     messages: messages.map(m => ({
       role: m.role,
-      content: m.content,
+      content: formatMessageContent(m.content),
     })),
   });
 
@@ -70,7 +97,7 @@ export async function* chatStream(
     system: systemPrompt,
     messages: messages.map(m => ({
       role: m.role,
-      content: m.content,
+      content: formatMessageContent(m.content),
     })),
   });
 

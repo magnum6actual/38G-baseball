@@ -77,7 +77,7 @@ export default function BuilderPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const fileToBase64 = (file: File): Promise<string> => {
+  const fileToBase64 = useCallback((file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -89,7 +89,7 @@ export default function BuilderPage() {
       };
       reader.onerror = reject;
     });
-  };
+  }, []);
 
   // Resize image to fit within maxSize while maintaining aspect ratio
   // Returns base64 string (without data URL prefix)
@@ -213,11 +213,13 @@ export default function BuilderPage() {
                   };
                   return updated;
                 });
+              } else if (data.type === 'text_complete') {
+                // Visible text is done - enable input immediately
+                // (LLM is still generating JSON profile, but user doesn't need to wait)
+                setIsLoading(false);
               } else if (data.type === 'state') {
                 newState = data.state;
                 setState(data.state);
-                // Enable input as soon as we get state (text is done)
-                setIsLoading(false);
               } else if (data.type === 'profile') {
                 newProfile = data.profile;
                 setProfile(data.profile);
@@ -259,12 +261,13 @@ export default function BuilderPage() {
   const processingFilesRef = useRef<Set<string>>(new Set());
 
   // Auto-process uploaded documents as a chat turn
+  // Note: Only called by useEffect when isLoading is false
   const processDocumentUpload = useCallback(async (files: File[]) => {
     // Filter out files already being processed
     const newFiles = files.filter(f => !processingFilesRef.current.has(f.name));
-    if (newFiles.length === 0 || isLoading) return;
+    if (newFiles.length === 0) return;
 
-    // Mark these files as being processed
+    // Mark these files as being processed BEFORE any async work
     newFiles.forEach(f => processingFilesRef.current.add(f.name));
 
     setIsLoading(true);
@@ -336,10 +339,11 @@ export default function BuilderPage() {
                   };
                   return updated;
                 });
+              } else if (data.type === 'text_complete') {
+                // Visible text is done - enable input immediately
+                setIsLoading(false);
               } else if (data.type === 'state') {
                 setState(data.state);
-                // Enable input as soon as we get state (text is done)
-                setIsLoading(false);
               } else if (data.type === 'profile') {
                 setProfile(data.profile);
               } else if (data.type === 'done') {
@@ -382,7 +386,7 @@ export default function BuilderPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [conversationId, isLoading, fileToBase64]);
+  }, [conversationId, fileToBase64]);
 
   // Process any pending files when loading completes
   useEffect(() => {
@@ -400,10 +404,9 @@ export default function BuilderPage() {
     if (files && files.length > 0) {
       const fileArray = Array.from(files);
       setUploadedFiles((prev) => [...prev, ...fileArray]);
-      // Auto-process the uploaded files
-      processDocumentUpload(fileArray);
+      // useEffect will handle processing when isLoading is false
     }
-  }, [processDocumentUpload]);
+  }, []);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -411,10 +414,9 @@ export default function BuilderPage() {
     if (files && files.length > 0) {
       const fileArray = Array.from(files);
       setUploadedFiles((prev) => [...prev, ...fileArray]);
-      // Auto-process the dropped files
-      processDocumentUpload(fileArray);
+      // useEffect will handle processing when isLoading is false
     }
-  }, [processDocumentUpload]);
+  }, []);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
