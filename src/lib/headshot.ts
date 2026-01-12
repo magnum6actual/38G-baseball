@@ -59,7 +59,9 @@ Lighting: Mimic the soft, professional studio lighting from the reference.
 
 3. Enhancements: While maintaining a realistic photo-quality, please ${enhancementText}.
 
-Output: A photorealistic headshot with a 2:3 aspect ratio.`;
+4. Output: A photorealistic headshot with a 2:3 aspect ratio.
+
+CRITICAL - FACIAL ACCURACY: You MUST preserve the subject's exact facial features, bone structure, skin tone, and likeness with absolute precision. The output must be immediately and unmistakably recognizable as the same person. Do not alter, idealize, or "improve" any facial characteristics - the face must remain 100% accurate to the source photo.`;
 }
 
 /**
