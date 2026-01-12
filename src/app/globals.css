@@ -154,3 +154,302 @@
   background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
   border-bottom: 3px solid #FFD700;
 }
+
+/* Baseball Card Styles - Matches PDF Layout */
+.baseball-card {
+  background: white;
+  border: 2px solid #1a1a1a;
+  font-family: 'Arial Narrow', Arial, sans-serif;
+  font-size: 9px;
+  line-height: 1.2;
+  color: #000;
+  width: 100%;
+  max-width: 720px;
+  overflow: hidden;
+}
+
+/* Top Banner */
+.card-banner {
+  background: #1a1a1a;
+}
+
+.card-banner-warning {
+  background: #8B0000;
+  color: white;
+  font-size: 6px;
+  text-align: center;
+  padding: 2px 4px;
+  font-weight: bold;
+}
+
+.card-banner-row {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  gap: 8px;
+}
+
+.card-banner-name {
+  flex: 1;
+  color: #FFD700;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.card-banner-army {
+  color: #FFD700;
+  font-weight: bold;
+  font-size: 11px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.card-banner-unit {
+  flex: 1;
+  color: #FFD700;
+  font-size: 10px;
+  text-align: right;
+}
+
+/* Main Layout: Left Column + Right Area */
+.card-main {
+  display: flex;
+  gap: 0;
+}
+
+.card-left-column {
+  width: 130px;
+  flex-shrink: 0;
+  border-right: 1px solid #1a1a1a;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-right-area {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Photo */
+.card-photo {
+  width: 100%;
+  height: 160px;
+  background: #f0f0f0;
+  border-bottom: 1px solid #1a1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.card-photo:hover {
+  background: #e8e8e8;
+}
+
+.card-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-photo-placeholder {
+  text-align: center;
+  color: #999;
+  font-size: 8px;
+  padding: 8px;
+}
+
+/* Left Column Sections (Awards, Credentials, Education, Clearance) */
+.card-left-section {
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.card-left-header {
+  background: #1a1a1a;
+  color: #FFD700;
+  font-size: 7px;
+  font-weight: bold;
+  padding: 2px 4px;
+  text-transform: uppercase;
+}
+
+.card-left-content {
+  background: white;
+  padding: 3px 4px;
+  min-height: 24px;
+  font-size: 8px;
+}
+
+.card-left-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 1px;
+}
+
+.card-left-label {
+  font-weight: bold;
+  font-size: 7px;
+  color: #333;
+  flex-shrink: 0;
+  min-width: 45px;
+}
+
+/* Right Area: Top Row (Profile + Skills + Additional Info) */
+.card-top-row {
+  display: flex;
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.card-profile-section {
+  width: 240px;
+  flex-shrink: 0;
+  border-right: 1px solid #1a1a1a;
+}
+
+.card-profile-header {
+  background: #1a1a1a;
+  color: #FFD700;
+  font-size: 8px;
+  font-weight: bold;
+  padding: 2px 4px;
+  text-transform: uppercase;
+}
+
+.card-profile-fields {
+  padding: 4px;
+  background: white;
+}
+
+.card-profile-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+
+.card-profile-label {
+  font-weight: bold;
+  font-size: 7px;
+  color: #333;
+  flex-shrink: 0;
+}
+
+/* Skills Grid */
+.card-skills-section {
+  border-top: 1px solid #1a1a1a;
+}
+
+.card-skills-header {
+  background: #1a1a1a;
+  color: #FFD700;
+  font-size: 7px;
+  font-weight: bold;
+  padding: 2px 4px;
+  text-transform: uppercase;
+}
+
+.card-skills-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  background: #ddd;
+}
+
+.card-skill-cell {
+  background: white;
+  padding: 2px 4px;
+  font-size: 7px;
+  min-height: 14px;
+  border: 0.5px solid #ddd;
+}
+
+/* Additional Information */
+.card-additional-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-additional-header {
+  background: #1a1a1a;
+  color: #FFD700;
+  font-size: 8px;
+  font-weight: bold;
+  padding: 2px 4px;
+  text-transform: uppercase;
+}
+
+.card-additional-content {
+  flex: 1;
+  padding: 4px;
+  background: white;
+  font-size: 8px;
+}
+
+.card-freeform-label {
+  font-size: 6px;
+  color: #666;
+  font-style: italic;
+  padding: 2px 4px;
+  border-top: 1px solid #ddd;
+}
+
+/* Tables (Deployments, Prior Experience) */
+.card-table-section {
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.card-table-header {
+  background: #1a1a1a;
+  color: #FFD700;
+  font-size: 7px;
+  font-weight: bold;
+  padding: 2px 4px;
+  text-transform: uppercase;
+}
+
+.card-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.card-table th {
+  background: #333;
+  color: #FFD700;
+  font-size: 6px;
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 2px 4px;
+  text-align: left;
+  border: 0.5px solid #1a1a1a;
+}
+
+.card-table td {
+  border: 0.5px solid #ddd;
+  padding: 2px 4px;
+  font-size: 7px;
+  vertical-align: top;
+  min-height: 16px;
+}
+
+.card-table tr:hover td {
+  background: #fffef0;
+}
+
+/* Bottom Row: Training + Exercises side by side */
+.card-bottom-row {
+  display: flex;
+}
+
+.card-bottom-table {
+  flex: 1;
+}
+
+.card-bottom-table:first-child {
+  border-right: 1px solid #1a1a1a;
+}

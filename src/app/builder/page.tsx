@@ -6,7 +6,8 @@ import remarkGfm from 'remark-gfm';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+import { BaseballCard } from '@/components/builder/BaseballCard';
+import { BuilderProfile } from '@/lib/builder';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -15,19 +16,11 @@ interface Message {
 
 type BuilderState = 'interviewing' | 'headshot' | 'generating' | 'complete';
 
-interface BuilderProfile {
-  name?: string;
-  rank?: string;
-  unit?: string;
-  clearance_level?: string;
-  [key: string]: unknown;
-}
-
 export default function BuilderPage() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "Welcome! I'll help you create your 38G Baseball Card. You can start by uploading your resume or other documents, or we can begin the interview directly.\n\nWhat's your name and current rank?",
+      content: "Welcome! I'll help you create your 38G Baseball Card. You can start by uploading your resume or other documents using the attachment button, or we can begin the interview directly.\n\nWhat's your name and current rank?",
     },
   ]);
   const [input, setInput] = useState('');
@@ -42,7 +35,6 @@ export default function BuilderPage() {
   const [headshotFile, setHeadshotFile] = useState<File | null>(null);
   const [headshotPreview, setHeadshotPreview] = useState<string | null>(null);
   const [processedHeadshot, setProcessedHeadshot] = useState<string | null>(null);
-  const [headshotEnhancements, setHeadshotEnhancements] = useState('');
   const [isProcessingHeadshot, setIsProcessingHeadshot] = useState(false);
 
   // PDF state
@@ -50,19 +42,18 @@ export default function BuilderPage() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const headshotInputRef = useRef<HTMLInputElement>(null);
 
-  // Adjust textarea height based on content (up to 4 lines, then scroll)
+  // Adjust textarea height based on content
   const adjustTextareaHeight = useCallback(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
-
-    // Reset height to auto to get the correct scrollHeight
     textarea.style.height = 'auto';
-    // Set height to scrollHeight, capped at max-height (handled by CSS)
     textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
   }, []);
 
-  // Reset textarea height when input is cleared (after sending)
+  // Reset textarea height when input is cleared
   useEffect(() => {
     if (input === '') {
       const textarea = textareaRef.current;
@@ -83,7 +74,6 @@ export default function BuilderPage() {
       reader.readAsDataURL(file);
       reader.onload = () => {
         const result = reader.result as string;
-        // Remove data URL prefix to get pure base64
         const base64 = result.split(',')[1];
         resolve(base64);
       };
@@ -92,7 +82,6 @@ export default function BuilderPage() {
   }, []);
 
   // Resize image to fit within maxSize while maintaining aspect ratio
-  // Returns base64 string (without data URL prefix)
   const resizeImage = (file: File, maxSize: number = 512): Promise<string> => {
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -102,7 +91,6 @@ export default function BuilderPage() {
       img.onload = () => {
         let { width, height } = img;
 
-        // Calculate new dimensions maintaining aspect ratio
         if (width > height) {
           if (width > maxSize) {
             height = Math.round((height * maxSize) / width);
@@ -123,22 +111,14 @@ export default function BuilderPage() {
           return;
         }
 
-        // Draw resized image
         ctx.drawImage(img, 0, 0, width, height);
-
-        // Get base64 (remove data URL prefix)
         const dataUrl = canvas.toDataURL('image/png', 0.9);
         const base64 = dataUrl.split(',')[1];
-
-        console.log(`Resized image: ${img.naturalWidth}x${img.naturalHeight} -> ${width}x${height}`);
-        console.log(`Base64 size: ${Math.round(base64.length / 1024)} KB`);
-
         resolve(base64);
       };
 
       img.onerror = () => reject(new Error('Failed to load image'));
 
-      // Load image from file
       const reader = new FileReader();
       reader.onload = (e) => {
         img.src = e.target?.result as string;
@@ -158,7 +138,6 @@ export default function BuilderPage() {
     setIsLoading(true);
 
     try {
-      // Documents are now auto-processed on upload, so we just send the message
       const response = await fetch('/api/chat/builder', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -173,7 +152,6 @@ export default function BuilderPage() {
         throw new Error(error.error || 'Builder failed');
       }
 
-      // Handle SSE streaming response
       const reader = response.body?.getReader();
       if (!reader) {
         throw new Error('No response body');
@@ -181,11 +159,7 @@ export default function BuilderPage() {
 
       const decoder = new TextDecoder();
       let assistantMessage = '';
-      let newConversationId = conversationId;
-      let newState = state;
-      let newProfile = profile;
 
-      // Add empty assistant message that we'll update
       setMessages((prev) => [...prev, { role: 'assistant', content: '' }]);
 
       while (true) {
@@ -201,7 +175,6 @@ export default function BuilderPage() {
               const data = JSON.parse(line.slice(6));
 
               if (data.type === 'conversationId') {
-                newConversationId = data.conversationId;
                 setConversationId(data.conversationId);
               } else if (data.type === 'text') {
                 assistantMessage += data.content;
@@ -214,24 +187,19 @@ export default function BuilderPage() {
                   return updated;
                 });
               } else if (data.type === 'text_complete') {
-                // Visible text is done - enable input immediately
-                // (LLM is still generating JSON profile, but user doesn't need to wait)
                 setIsLoading(false);
               } else if (data.type === 'state') {
-                newState = data.state;
                 setState(data.state);
               } else if (data.type === 'profile') {
-                newProfile = data.profile;
                 setProfile(data.profile);
               } else if (data.type === 'done') {
-                // Final state update
                 if (data.state) setState(data.state);
                 if (data.profile) setProfile(data.profile);
                 setIsLoading(false);
               } else if (data.type === 'error') {
                 throw new Error(data.error);
               }
-            } catch (parseError) {
+            } catch {
               // Ignore JSON parse errors for incomplete chunks
             }
           }
@@ -240,7 +208,6 @@ export default function BuilderPage() {
     } catch (error) {
       console.error('Builder error:', error);
       setMessages((prev) => {
-        // Remove empty assistant message if present
         const filtered = prev.filter(
           (m, i) => !(i === prev.length - 1 && m.role === 'assistant' && m.content === '')
         );
@@ -257,30 +224,24 @@ export default function BuilderPage() {
     }
   };
 
-  // Track files currently being processed to avoid double-processing
+  // Track files currently being processed
   const processingFilesRef = useRef<Set<string>>(new Set());
 
   // Auto-process uploaded documents as a chat turn
-  // Note: Only called by useEffect when isLoading is false
   const processDocumentUpload = useCallback(async (files: File[]) => {
-    // Filter out files already being processed
     const newFiles = files.filter(f => !processingFilesRef.current.has(f.name));
     if (newFiles.length === 0) return;
 
-    // Mark these files as being processed BEFORE any async work
     newFiles.forEach(f => processingFilesRef.current.add(f.name));
-
     setIsLoading(true);
 
     try {
-      // Prepare documents with filenames
       const documents: Array<{ filename: string; content: string }> = [];
       for (const file of newFiles) {
         const base64 = await fileToBase64(file);
         documents.push({ filename: file.name, content: base64 });
       }
 
-      // Add a user message about the upload
       const fileNames = newFiles.map(f => f.name).join(', ');
       const userMessage = newFiles.length === 1
         ? `I've uploaded a document: ${fileNames}`
@@ -303,7 +264,6 @@ export default function BuilderPage() {
         throw new Error(error.error || 'Builder failed');
       }
 
-      // Handle SSE streaming response
       const reader = response.body?.getReader();
       if (!reader) {
         throw new Error('No response body');
@@ -312,7 +272,6 @@ export default function BuilderPage() {
       const decoder = new TextDecoder();
       let assistantMessage = '';
 
-      // Add empty assistant message that we'll update
       setMessages((prev) => [...prev, { role: 'assistant', content: '' }]);
 
       while (true) {
@@ -340,7 +299,6 @@ export default function BuilderPage() {
                   return updated;
                 });
               } else if (data.type === 'text_complete') {
-                // Visible text is done - enable input immediately
                 setIsLoading(false);
               } else if (data.type === 'state') {
                 setState(data.state);
@@ -353,23 +311,19 @@ export default function BuilderPage() {
               } else if (data.type === 'error') {
                 throw new Error(data.error);
               }
-            } catch (parseError) {
-              // Ignore JSON parse errors for incomplete chunks
+            } catch {
+              // Ignore JSON parse errors
             }
           }
         }
       }
 
-      // Add to processed files list and clear from pending
       setProcessedFileNames((prev) => [...prev, ...newFiles.map(f => f.name)]);
       setUploadedFiles((prev) => prev.filter(f => !newFiles.includes(f)));
-      // Clear from processing tracker
       newFiles.forEach(f => processingFilesRef.current.delete(f.name));
     } catch (error) {
       console.error('Document upload error:', error);
-      // Clear from processing tracker on error
       newFiles.forEach(f => processingFilesRef.current.delete(f.name));
-      // Also remove from uploadedFiles so user can retry
       setUploadedFiles((prev) => prev.filter(f => !newFiles.includes(f)));
       setMessages((prev) => {
         const filtered = prev.filter(
@@ -388,10 +342,9 @@ export default function BuilderPage() {
     }
   }, [conversationId, fileToBase64]);
 
-  // Process any pending files when loading completes
+  // Process pending files when loading completes
   useEffect(() => {
     if (!isLoading && uploadedFiles.length > 0) {
-      // Find files not yet processed
       const pendingFiles = uploadedFiles.filter(f => !processingFilesRef.current.has(f.name));
       if (pendingFiles.length > 0) {
         processDocumentUpload(pendingFiles);
@@ -404,44 +357,24 @@ export default function BuilderPage() {
     if (files && files.length > 0) {
       const fileArray = Array.from(files);
       setUploadedFiles((prev) => [...prev, ...fileArray]);
-      // useEffect will handle processing when isLoading is false
     }
-  }, []);
-
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    const files = e.dataTransfer.files;
-    if (files && files.length > 0) {
-      const fileArray = Array.from(files);
-      setUploadedFiles((prev) => [...prev, ...fileArray]);
-      // useEffect will handle processing when isLoading is false
-    }
-  }, []);
-
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
+    // Reset input so same file can be uploaded again
+    e.target.value = '';
   }, []);
 
   const handleHeadshotUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setHeadshotFile(file);
-      // Create preview URL
       const url = URL.createObjectURL(file);
       setHeadshotPreview(url);
       setProcessedHeadshot(null);
     }
+    e.target.value = '';
   }, []);
 
-  const handleHeadshotDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files?.[0];
-    if (file && file.type.startsWith('image/')) {
-      setHeadshotFile(file);
-      const url = URL.createObjectURL(file);
-      setHeadshotPreview(url);
-      setProcessedHeadshot(null);
-    }
+  const handleHeadshotClick = useCallback(() => {
+    headshotInputRef.current?.click();
   }, []);
 
   const processHeadshot = async () => {
@@ -450,8 +383,6 @@ export default function BuilderPage() {
     setIsProcessingHeadshot(true);
 
     try {
-      // Resize image to 512px max dimension to stay under API limits
-      // This handles large iPhone photos (10+ MB) automatically
       const base64 = await resizeImage(headshotFile, 512);
 
       const response = await fetch('/api/headshot', {
@@ -459,7 +390,6 @@ export default function BuilderPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           subjectImage: base64,
-          enhancements: headshotEnhancements || undefined,
         }),
       });
 
@@ -471,7 +401,7 @@ export default function BuilderPage() {
       const data = await response.json();
 
       if (data.success && data.processedImage) {
-        setProcessedHeadshot(`data:image/png;base64,${data.processedImage}`);
+        setProcessedHeadshot(data.processedImage);
       } else {
         throw new Error(data.error || 'No processed image returned');
       }
@@ -483,11 +413,10 @@ export default function BuilderPage() {
     }
   };
 
-  const useOriginalHeadshot = () => {
-    if (headshotPreview) {
-      setProcessedHeadshot(headshotPreview);
-    }
-  };
+  // Profile update handler for BaseballCard
+  const handleProfileUpdate = useCallback((field: keyof BuilderProfile, value: unknown) => {
+    setProfile(prev => ({ ...prev, [field]: value }));
+  }, []);
 
   const generateCard = async () => {
     setState('generating');
@@ -497,10 +426,8 @@ export default function BuilderPage() {
     ]);
 
     try {
-      // Get headshot base64 if we have a processed one
       let headshotBase64: string | undefined;
       if (processedHeadshot) {
-        // Remove data URL prefix if present
         headshotBase64 = processedHeadshot.includes(',')
           ? processedHeadshot.split(',')[1]
           : processedHeadshot;
@@ -529,11 +456,10 @@ export default function BuilderPage() {
           ...prev,
           {
             role: 'assistant',
-            content: 'Your 38G Baseball Card has been generated! You can download it using the button in the sidebar. Your profile is now searchable in the talent database.',
+            content: 'Your 38G Baseball Card has been generated! You can download it using the button below. Your profile is now searchable in the talent database.',
           },
         ]);
 
-        // Create a data URL for the PDF download
         if (data.pdfBase64) {
           setGeneratedPdfUrl(`data:application/pdf;base64,${data.pdfBase64}`);
         } else if (data.pdfUrl) {
@@ -544,7 +470,7 @@ export default function BuilderPage() {
       }
     } catch (error) {
       console.error('PDF generation error:', error);
-      setState('headshot'); // Go back to headshot state
+      setState('headshot');
       setMessages((prev) => [
         ...prev,
         {
@@ -572,7 +498,7 @@ export default function BuilderPage() {
     setMessages([
       {
         role: 'assistant',
-        content: "Welcome! I'll help you create your 38G Baseball Card. You can start by uploading your resume or other documents, or we can begin the interview directly.\n\nWhat's your name and current rank?",
+        content: "Welcome! I'll help you create your 38G Baseball Card. You can start by uploading your resume or other documents using the attachment button, or we can begin the interview directly.\n\nWhat's your name and current rank?",
       },
     ]);
     setUploadedFiles([]);
@@ -583,14 +509,35 @@ export default function BuilderPage() {
     setHeadshotFile(null);
     setHeadshotPreview(null);
     setProcessedHeadshot(null);
-    setHeadshotEnhancements('');
     setGeneratedPdfUrl(null);
   };
 
+  // Get headshot for card display (base64 without data URL prefix)
+  const cardHeadshot = processedHeadshot || (headshotPreview ? null : null);
+  // If we have a preview URL but not processed, we need to convert it
+  const displayHeadshot = processedHeadshot || null;
+
   return (
     <div className="flex h-[calc(100vh-8rem)] overflow-hidden">
+      {/* Hidden file inputs */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        className="hidden"
+        onChange={handleFileUpload}
+        accept=".txt,.md,.pdf,.doc,.docx"
+      />
+      <input
+        ref={headshotInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleHeadshotUpload}
+      />
+
       {/* Main Chat Panel */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-[400px] overflow-hidden">
         <div className="p-4 border-b bg-muted/50 flex items-center justify-between flex-shrink-0">
           <div>
             <h2 className="font-semibold">Card Builder</h2>
@@ -598,7 +545,14 @@ export default function BuilderPage() {
               Create your 38G Baseball Card
             </p>
           </div>
-          <Badge variant="outline">{getStateLabel()}</Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline">{getStateLabel()}</Badge>
+            {processedFileNames.length > 0 && (
+              <Badge variant="secondary" className="text-xs">
+                {processedFileNames.length} doc{processedFileNames.length !== 1 ? 's' : ''}
+              </Badge>
+            )}
+          </div>
         </div>
 
         {/* Messages */}
@@ -639,9 +593,23 @@ export default function BuilderPage() {
           </div>
         </div>
 
-        {/* Input */}
+        {/* Input with attachment button */}
         <form onSubmit={handleSubmit} className="p-4 border-t flex-shrink-0">
           <div className="max-w-3xl mx-auto flex gap-2 items-end">
+            {/* Attachment button */}
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="h-10 w-10 flex-shrink-0"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isLoading || state === 'generating' || state === 'complete'}
+              title="Attach document"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+              </svg>
+            </Button>
             <Textarea
               ref={textareaRef}
               value={input}
@@ -650,7 +618,6 @@ export default function BuilderPage() {
                 adjustTextareaHeight();
               }}
               onKeyDown={(e: KeyboardEvent<HTMLTextAreaElement>) => {
-                // Submit on Enter (without Shift)
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();
                   if (input.trim() && !isLoading && state !== 'generating' && state !== 'complete') {
@@ -671,251 +638,83 @@ export default function BuilderPage() {
               Send
             </Button>
           </div>
-        </form>
-      </div>
-
-      {/* Side Panel */}
-      <div className="w-80 flex-shrink-0 flex flex-col border-l bg-muted/30 overflow-hidden">
-        <div className="flex-1 overflow-y-auto">
-          {/* Step 1: Documents Section */}
-          <div className={`p-4 border-b ${state !== 'interviewing' ? 'opacity-60' : ''}`}>
-            <div className="flex items-center gap-2 mb-2">
-              <span className={`flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold ${
-                state === 'interviewing'
-                  ? 'bg-[#FFD700] text-black'
-                  : 'bg-green-500 text-white'
-              }`}>
-                {state === 'interviewing' ? '1' : '✓'}
-              </span>
-              <h3 className="font-semibold text-sm">Documents</h3>
-            </div>
-
-            {state === 'interviewing' ? (
-              <>
-                <div
-                  className="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
-                  onDrop={handleDrop}
-                  onDragOver={handleDragOver}
-                  onClick={() => document.getElementById('file-upload')?.click()}
-                >
-                  <input
-                    id="file-upload"
-                    type="file"
-                    multiple
-                    className="hidden"
-                    onChange={handleFileUpload}
-                    accept=".txt,.md,.pdf,.doc,.docx"
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    Drop files here or click to upload
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Resume, certifications, etc.
-                  </p>
-                </div>
-                {uploadedFiles.length > 0 && (
-                  <div className="mt-2 space-y-1">
-                    <p className="text-xs text-muted-foreground">Processing...</p>
-                    {uploadedFiles.map((file, index) => (
-                      <div
-                        key={index}
-                        className="text-xs bg-yellow-500/20 rounded px-2 py-1 truncate flex items-center justify-between"
-                      >
-                        <span className="truncate">{file.name}</span>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
-                          }}
-                          className="text-muted-foreground hover:text-foreground ml-2"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </>
-            ) : null}
-
-            {processedFileNames.length > 0 && (
-              <div className={state === 'interviewing' ? 'mt-2 space-y-1' : 'space-y-1'}>
-                {state !== 'interviewing' && <p className="text-xs text-muted-foreground mb-1">Uploaded:</p>}
-                {processedFileNames.map((name, index) => (
-                  <div
-                    key={index}
-                    className="text-xs bg-green-500/20 rounded px-2 py-1 truncate flex items-center gap-1"
-                  >
-                    <span className="text-green-600">✓</span>
-                    <span className="truncate">{name}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Step 2: Headshot Section */}
-          <div className={`p-4 border-b ${
-            state === 'headshot'
-              ? 'bg-[#FFD700]/10 border-l-4 border-l-[#FFD700]'
-              : state === 'interviewing'
-                ? 'opacity-50'
-                : ''
-          }`}>
-            <div className="flex items-center gap-2 mb-2">
-              <span className={`flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold ${
-                state === 'headshot'
-                  ? 'bg-[#FFD700] text-black'
-                  : state === 'interviewing'
-                    ? 'bg-muted-foreground/30 text-muted-foreground'
-                    : 'bg-green-500 text-white'
-              }`}>
-                {(state === 'generating' || state === 'complete') ? '✓' : '2'}
-              </span>
-              <h3 className="font-semibold text-sm">Headshot</h3>
-              {state === 'headshot' && <Badge variant="outline" className="text-xs">Active</Badge>}
-            </div>
-
-            {state === 'interviewing' ? (
-              <p className="text-xs text-muted-foreground">
-                Complete the interview to upload your photo
-              </p>
-            ) : !headshotFile ? (
-              <div
-                className="border-2 border-dashed border-[#FFD700]/50 rounded-lg p-4 text-center cursor-pointer hover:bg-[#FFD700]/10 transition-colors"
-                onDrop={handleHeadshotDrop}
-                onDragOver={handleDragOver}
-                onClick={() => document.getElementById('headshot-upload')?.click()}
-              >
-                <input
-                  id="headshot-upload"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleHeadshotUpload}
-                />
-                <p className="text-sm text-muted-foreground">
-                  Upload your photo
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  In uniform preferred
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {/* Preview */}
-                <div className="relative aspect-[2/3] bg-muted rounded-lg overflow-hidden">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={processedHeadshot || headshotPreview || ''}
-                    alt="Headshot preview"
-                    className="w-full h-full object-cover"
-                  />
-                  {processedHeadshot && (
-                    <Badge className="absolute top-2 right-2 bg-green-600">
-                      Processed
-                    </Badge>
-                  )}
-                </div>
-
-                {/* Enhancement input */}
-                {!processedHeadshot && (
-                  <Textarea
-                    placeholder="Optional: Enhancement requests (e.g., reduce shadows, soften wrinkles)"
-                    className="text-sm"
-                    rows={2}
-                    value={headshotEnhancements}
-                    onChange={(e) => setHeadshotEnhancements(e.target.value)}
-                  />
-                )}
-
-                {/* Actions */}
-                <div className="flex gap-2">
-                  {!processedHeadshot ? (
-                    <>
-                      <Button
-                        size="sm"
-                        className="flex-1"
-                        onClick={processHeadshot}
-                        disabled={isProcessingHeadshot}
-                      >
-                        {isProcessingHeadshot ? 'Processing...' : 'Process Photo'}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={useOriginalHeadshot}
-                      >
-                        Use Original
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <Button
-                        size="sm"
-                        className="flex-1"
-                        onClick={generateCard}
-                        disabled={state === 'generating' || state === 'complete'}
-                      >
-                        Generate Card
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setProcessedHeadshot(null)}
-                      >
-                        Re-process
-                      </Button>
-                    </>
-                  )}
-                </div>
-
-                {/* Change photo */}
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="w-full"
-                  onClick={() => {
-                    setHeadshotFile(null);
-                    setHeadshotPreview(null);
-                    setProcessedHeadshot(null);
-                  }}
-                >
-                  Change Photo
-                </Button>
-              </div>
-            )}
-          </div>
-
-          {/* Profile Summary */}
-          {Object.keys(profile).length > 0 && (
-            <div className="p-4 border-t">
-              <h4 className="text-xs font-medium text-muted-foreground mb-2">Profile Data</h4>
-              <div className="text-xs space-y-1">
-                {profile.name && <p><span className="text-muted-foreground">Name:</span> {String(profile.name)}</p>}
-                {profile.rank && <p><span className="text-muted-foreground">Rank:</span> {String(profile.rank)}</p>}
-                {profile.unit && <p><span className="text-muted-foreground">Unit:</span> {String(profile.unit)}</p>}
-                {profile.clearance_level && <p><span className="text-muted-foreground">Clearance:</span> {String(profile.clearance_level)}</p>}
-              </div>
+          {/* Upload indicator */}
+          {uploadedFiles.length > 0 && (
+            <div className="max-w-3xl mx-auto mt-2 flex gap-2 flex-wrap">
+              {uploadedFiles.map((file, index) => (
+                <span key={index} className="text-xs bg-yellow-500/20 rounded px-2 py-1 flex items-center gap-1">
+                  <span className="animate-pulse">Processing:</span> {file.name}
+                </span>
+              ))}
             </div>
           )}
-        </div>
+        </form>
 
-        {/* Completion Actions - stays at bottom */}
-        {state === 'complete' && (
-          <div className="p-4 border-t space-y-2 flex-shrink-0">
-            {generatedPdfUrl && (
-              <Button className="w-full" asChild>
-                <a href={generatedPdfUrl} download="38G_Baseball_Card.pdf">
-                  Download PDF
-                </a>
-              </Button>
-            )}
-            <Button className="w-full" variant="outline" onClick={resetBuilder}>
-              Start New Card
-            </Button>
+        {/* Action buttons for headshot/generation */}
+        {(state === 'headshot' || state === 'complete') && (
+          <div className="p-4 border-t bg-muted/30 flex-shrink-0">
+            <div className="max-w-3xl mx-auto flex gap-2 flex-wrap">
+              {state === 'headshot' && !headshotFile && (
+                <Button onClick={handleHeadshotClick} variant="outline">
+                  Upload Photo
+                </Button>
+              )}
+              {state === 'headshot' && headshotFile && !processedHeadshot && (
+                <>
+                  <Button onClick={processHeadshot} disabled={isProcessingHeadshot}>
+                    {isProcessingHeadshot ? 'Processing...' : 'Process Photo'}
+                  </Button>
+                  <Button variant="outline" onClick={() => setProcessedHeadshot(headshotPreview)}>
+                    Use Original
+                  </Button>
+                  <Button variant="ghost" onClick={handleHeadshotClick}>
+                    Change Photo
+                  </Button>
+                </>
+              )}
+              {state === 'headshot' && processedHeadshot && (
+                <>
+                  <Button onClick={generateCard}>
+                    Generate Card
+                  </Button>
+                  <Button variant="outline" onClick={() => setProcessedHeadshot(null)}>
+                    Re-process Photo
+                  </Button>
+                </>
+              )}
+              {state === 'complete' && (
+                <>
+                  {generatedPdfUrl && (
+                    <Button asChild>
+                      <a href={generatedPdfUrl} download="38G_Baseball_Card.pdf">
+                        Download PDF
+                      </a>
+                    </Button>
+                  )}
+                  <Button variant="outline" onClick={resetBuilder}>
+                    Start New Card
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
         )}
+      </div>
+
+      {/* Card Panel */}
+      <div className="w-[700px] flex-shrink-0 flex flex-col border-l bg-muted/20 overflow-hidden">
+        <div className="p-3 border-b bg-muted/50 flex items-center justify-between">
+          <h3 className="font-semibold text-sm">Card Preview</h3>
+          <span className="text-xs text-muted-foreground">Click any field to edit</span>
+        </div>
+        <div className="flex-1 overflow-y-auto p-4">
+          <BaseballCard
+            profile={profile}
+            headshotPreview={displayHeadshot}
+            onProfileUpdate={handleProfileUpdate}
+            onHeadshotClick={handleHeadshotClick}
+          />
+        </div>
       </div>
     </div>
   );
