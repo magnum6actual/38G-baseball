@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { BaseballCard } from '@/components/builder/BaseballCard';
+import { HeadshotModal } from '@/components/builder/HeadshotModal';
 import { BuilderProfile } from '@/lib/builder';
 
 interface Message {
@@ -14,7 +15,7 @@ interface Message {
   content: string;
 }
 
-type BuilderState = 'interviewing' | 'headshot' | 'generating' | 'complete';
+type BuilderState = 'interviewing' | 'generating' | 'complete';
 
 export default function BuilderPage() {
   const [messages, setMessages] = useState<Message[]>([
@@ -32,10 +33,8 @@ export default function BuilderPage() {
   const [profile, setProfile] = useState<BuilderProfile>({});
 
   // Headshot state
-  const [headshotFile, setHeadshotFile] = useState<File | null>(null);
-  const [headshotPreview, setHeadshotPreview] = useState<string | null>(null);
-  const [processedHeadshot, setProcessedHeadshot] = useState<string | null>(null);
-  const [isProcessingHeadshot, setIsProcessingHeadshot] = useState(false);
+  const [headshot, setHeadshot] = useState<string | null>(null);
+  const [isHeadshotModalOpen, setIsHeadshotModalOpen] = useState(false);
 
   // PDF state
   const [generatedPdfUrl, setGeneratedPdfUrl] = useState<string | null>(null);
@@ -43,7 +42,6 @@ export default function BuilderPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const headshotInputRef = useRef<HTMLInputElement>(null);
 
   // Adjust textarea height based on content
   const adjustTextareaHeight = useCallback(() => {
@@ -80,53 +78,6 @@ export default function BuilderPage() {
       reader.onerror = reject;
     });
   }, []);
-
-  // Resize image to fit within maxSize while maintaining aspect ratio
-  const resizeImage = (file: File, maxSize: number = 512): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-
-      img.onload = () => {
-        let { width, height } = img;
-
-        if (width > height) {
-          if (width > maxSize) {
-            height = Math.round((height * maxSize) / width);
-            width = maxSize;
-          }
-        } else {
-          if (height > maxSize) {
-            width = Math.round((width * maxSize) / height);
-            height = maxSize;
-          }
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-
-        if (!ctx) {
-          reject(new Error('Could not get canvas context'));
-          return;
-        }
-
-        ctx.drawImage(img, 0, 0, width, height);
-        const dataUrl = canvas.toDataURL('image/png', 0.9);
-        const base64 = dataUrl.split(',')[1];
-        resolve(base64);
-      };
-
-      img.onerror = () => reject(new Error('Failed to load image'));
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        img.src = e.target?.result as string;
-      };
-      reader.onerror = () => reject(new Error('Failed to read file'));
-      reader.readAsDataURL(file);
-    });
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -320,9 +271,11 @@ export default function BuilderPage() {
 
       setProcessedFileNames((prev) => [...prev, ...newFiles.map(f => f.name)]);
       setUploadedFiles((prev) => prev.filter(f => !newFiles.includes(f)));
-      newFiles.forEach(f => processingFilesRef.current.delete(f.name));
+      // Note: Don't delete from processingFilesRef - it prevents race conditions
+      // where useEffect re-runs before state updates are applied
     } catch (error) {
       console.error('Document upload error:', error);
+      // On error, remove from ref so user can retry
       newFiles.forEach(f => processingFilesRef.current.delete(f.name));
       setUploadedFiles((prev) => prev.filter(f => !newFiles.includes(f)));
       setMessages((prev) => {
@@ -364,56 +317,13 @@ export default function BuilderPage() {
     e.target.value = '';
   }, []);
 
-  const handleHeadshotUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setHeadshotFile(file);
-      const url = URL.createObjectURL(file);
-      setHeadshotPreview(url);
-      setProcessedHeadshot(null);
-    }
-    e.target.value = '';
-  }, []);
-
   const handleHeadshotClick = useCallback(() => {
-    headshotInputRef.current?.click();
+    setIsHeadshotModalOpen(true);
   }, []);
 
-  const processHeadshot = async () => {
-    if (!headshotFile) return;
-
-    setIsProcessingHeadshot(true);
-
-    try {
-      const base64 = await resizeImage(headshotFile, 512);
-
-      const response = await fetch('/api/headshot', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          subjectImage: base64,
-        }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Headshot processing failed');
-      }
-
-      const data = await response.json();
-
-      if (data.success && data.processedImage) {
-        setProcessedHeadshot(data.processedImage);
-      } else {
-        throw new Error(data.error || 'No processed image returned');
-      }
-    } catch (error) {
-      console.error('Headshot processing error:', error);
-      alert(`Failed to process headshot: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    } finally {
-      setIsProcessingHeadshot(false);
-    }
-  };
+  const handleHeadshotComplete = useCallback((processedImage: string) => {
+    setHeadshot(processedImage);
+  }, []);
 
   // Profile update handler for BaseballCard
   const handleProfileUpdate = useCallback((field: keyof BuilderProfile, value: unknown) => {
@@ -429,10 +339,10 @@ export default function BuilderPage() {
 
     try {
       let headshotBase64: string | undefined;
-      if (processedHeadshot) {
-        headshotBase64 = processedHeadshot.includes(',')
-          ? processedHeadshot.split(',')[1]
-          : processedHeadshot;
+      if (headshot) {
+        headshotBase64 = headshot.includes(',')
+          ? headshot.split(',')[1]
+          : headshot;
       }
 
       const response = await fetch('/api/generate-pdf', {
@@ -487,8 +397,6 @@ export default function BuilderPage() {
     switch (state) {
       case 'interviewing':
         return 'Interview';
-      case 'headshot':
-        return 'Headshot';
       case 'generating':
         return 'Generating';
       case 'complete':
@@ -505,23 +413,17 @@ export default function BuilderPage() {
     ]);
     setUploadedFiles([]);
     setProcessedFileNames([]);
+    processingFilesRef.current.clear();
     setState('interviewing');
     setConversationId(null);
     setProfile({});
-    setHeadshotFile(null);
-    setHeadshotPreview(null);
-    setProcessedHeadshot(null);
+    setHeadshot(null);
     setGeneratedPdfUrl(null);
   };
 
-  // Get headshot for card display (base64 without data URL prefix)
-  const cardHeadshot = processedHeadshot || (headshotPreview ? null : null);
-  // If we have a preview URL but not processed, we need to convert it
-  const displayHeadshot = processedHeadshot || null;
-
   return (
     <div className="flex h-[calc(100vh-8rem)] overflow-hidden">
-      {/* Hidden file inputs */}
+      {/* Hidden file input for documents */}
       <input
         ref={fileInputRef}
         type="file"
@@ -530,12 +432,13 @@ export default function BuilderPage() {
         onChange={handleFileUpload}
         accept=".txt,.md,.pdf,.doc,.docx"
       />
-      <input
-        ref={headshotInputRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={handleHeadshotUpload}
+
+      {/* Headshot Modal */}
+      <HeadshotModal
+        isOpen={isHeadshotModalOpen}
+        onClose={() => setIsHeadshotModalOpen(false)}
+        onComplete={handleHeadshotComplete}
+        currentHeadshot={headshot}
       />
 
       {/* Main Chat Panel - 30% */}
@@ -652,37 +555,14 @@ export default function BuilderPage() {
           )}
         </form>
 
-        {/* Action buttons for headshot/generation */}
-        {(state === 'headshot' || state === 'complete') && (
+        {/* Action buttons */}
+        {(state === 'interviewing' || state === 'complete') && (
           <div className="p-4 border-t bg-muted/30 flex-shrink-0">
             <div className="max-w-3xl mx-auto flex gap-2 flex-wrap">
-              {state === 'headshot' && !headshotFile && (
-                <Button onClick={handleHeadshotClick} variant="outline">
-                  Upload Photo
+              {state === 'interviewing' && profile.name && (
+                <Button onClick={generateCard} disabled={isLoading}>
+                  Generate Card
                 </Button>
-              )}
-              {state === 'headshot' && headshotFile && !processedHeadshot && (
-                <>
-                  <Button onClick={processHeadshot} disabled={isProcessingHeadshot}>
-                    {isProcessingHeadshot ? 'Processing...' : 'Process Photo'}
-                  </Button>
-                  <Button variant="outline" onClick={() => setProcessedHeadshot(headshotPreview)}>
-                    Use Original
-                  </Button>
-                  <Button variant="ghost" onClick={handleHeadshotClick}>
-                    Change Photo
-                  </Button>
-                </>
-              )}
-              {state === 'headshot' && processedHeadshot && (
-                <>
-                  <Button onClick={generateCard}>
-                    Generate Card
-                  </Button>
-                  <Button variant="outline" onClick={() => setProcessedHeadshot(null)}>
-                    Re-process Photo
-                  </Button>
-                </>
               )}
               {state === 'complete' && (
                 <>
@@ -712,7 +592,7 @@ export default function BuilderPage() {
         <div className="flex-1 overflow-y-auto p-2">
           <BaseballCard
             profile={profile}
-            headshotPreview={displayHeadshot}
+            headshotPreview={headshot}
             onProfileUpdate={handleProfileUpdate}
             onHeadshotClick={handleHeadshotClick}
           />
