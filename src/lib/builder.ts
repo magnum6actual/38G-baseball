@@ -4,7 +4,7 @@
  * Handles the conversational interview flow for creating 38G baseball cards.
  */
 
-import { chat, chatStream, BUILDER_SYSTEM_PROMPT, ChatMessage, transformProfileToPdfFields, DocumentContent, TextContent } from './claude';
+import { chat, chatStream, BUILDER_SYSTEM_PROMPT, BUILDER_CHAT_PROMPT, BUILDER_UPDATE_PROMPT, ChatMessage, transformProfileToPdfFields, DocumentContent, TextContent } from './claude';
 import { ConversationMessage } from '@/types';
 
 export interface DocumentUpload {
@@ -557,4 +557,208 @@ ${profileSummary}`;
  */
 export async function generatePdfFields(profile: BuilderProfile): Promise<string> {
   return transformProfileToPdfFields(profile as Record<string, unknown>);
+}
+
+/**
+ * Process a builder conversation turn with streaming - CHAT ONLY
+ * Does not extract JSON, just streams the conversational response
+ * Use extractProfileFromConversation separately for JSON extraction
+ */
+export async function* processBuilderChatStream(
+  userMessage: string,
+  conversationHistory: ConversationMessage[],
+  currentContext: BuilderContext,
+  documents?: DocumentUpload[]
+): AsyncGenerator<{ type: 'text'; content: string } | { type: 'done'; state: BuilderState; response: string }> {
+  // Check for state transitions
+  let newState = currentContext.state;
+
+  if (currentContext.state === 'interviewing' && isGenerationRequest(userMessage)) {
+    newState = 'generating';
+  }
+
+  if (
+    currentContext.state === 'interviewing' &&
+    shouldTransitionToHeadshot(userMessage, currentContext.profile)
+  ) {
+    newState = 'generating';
+  }
+
+  // Build messages for Claude
+  const messages: ChatMessage[] = [];
+
+  for (const msg of conversationHistory) {
+    messages.push({
+      role: msg.role,
+      content: msg.content,
+    });
+  }
+
+  // Build the current message with context
+  let textContent = userMessage;
+
+  if (newState === 'generating') {
+    textContent += `
+
+[SYSTEM NOTE: The user is ready for the headshot phase. Acknowledge their progress and ask them to upload their photo. Mention they can optionally specify enhancement requests like "reduce shadows" or "soften wrinkles".]`;
+  }
+
+  // Build message content - either simple string or array with documents
+  if (documents && documents.length > 0) {
+    const contentBlocks: (TextContent | DocumentContent)[] = [];
+
+    // Add documents first
+    for (const doc of documents) {
+      contentBlocks.push({
+        type: 'document',
+        source: {
+          type: 'base64',
+          media_type: doc.mediaType,
+          data: doc.content,
+        },
+      });
+    }
+
+    // Add text message with document context
+    const docNames = documents.map(d => d.filename).join(', ');
+    contentBlocks.push({
+      type: 'text',
+      text: `[User uploaded: ${docNames}]\n\n${textContent}`,
+    });
+
+    messages.push({
+      role: 'user',
+      content: contentBlocks,
+    });
+  } else {
+    messages.push({
+      role: 'user',
+      content: textContent,
+    });
+  }
+
+  // Stream response from Claude using chat-only prompt
+  let fullResponse = '';
+
+  for await (const chunk of chatStream(messages, BUILDER_CHAT_PROMPT, 2048)) {
+    fullResponse += chunk;
+    yield { type: 'text', content: chunk };
+  }
+
+  // Don't auto-transition state - let user manually click "Generate Card" when ready
+  // This keeps the chat open for follow-up questions or edits
+
+  yield {
+    type: 'done',
+    state: newState,
+    response: fullResponse,
+  };
+}
+
+/**
+ * Update profile data from the latest conversation turn
+ * This is an incremental update - it receives current profile + latest turn and updates only changed fields
+ */
+export async function updateProfileFromTurn(
+  currentProfile: BuilderProfile,
+  latestUserMessage: string,
+  latestAssistantResponse: string,
+  documents?: DocumentUpload[]
+): Promise<BuilderProfile> {
+  // Build the message with current profile and latest turn
+  const messages: ChatMessage[] = [];
+
+  // First message: provide current profile state
+  messages.push({
+    role: 'user',
+    content: `CURRENT PROFILE STATE:\n${JSON.stringify(currentProfile, null, 2)}`,
+  });
+
+  messages.push({
+    role: 'assistant',
+    content: 'I have the current profile state. Please provide the new conversation exchange to analyze for updates.',
+  });
+
+  // Second message: provide the latest turn (with documents if any)
+  if (documents && documents.length > 0) {
+    const contentBlocks: (TextContent | DocumentContent)[] = [];
+
+    // Add documents
+    for (const doc of documents) {
+      contentBlocks.push({
+        type: 'document',
+        source: {
+          type: 'base64',
+          media_type: doc.mediaType,
+          data: doc.content,
+        },
+      });
+    }
+
+    // Add the conversation exchange text
+    const docNames = documents.map(d => d.filename).join(', ');
+    contentBlocks.push({
+      type: 'text',
+      text: `NEW CONVERSATION EXCHANGE:
+
+[Attached documents: ${docNames}]
+
+USER: ${latestUserMessage}
+
+ASSISTANT: ${latestAssistantResponse}
+
+Please update the profile based on any new information in this exchange and the attached documents.`,
+    });
+
+    messages.push({
+      role: 'user',
+      content: contentBlocks,
+    });
+  } else {
+    messages.push({
+      role: 'user',
+      content: `NEW CONVERSATION EXCHANGE:
+
+USER: ${latestUserMessage}
+
+ASSISTANT: ${latestAssistantResponse}
+
+Please update the profile based on any new information in this exchange.`,
+    });
+  }
+
+  // Get update response
+  const response = await chat(messages, BUILDER_UPDATE_PROMPT, 4096);
+
+  // Parse JSON from response
+  try {
+    // Remove any markdown formatting that might have slipped through
+    let jsonStr = response.content.trim();
+    if (jsonStr.startsWith('```json')) {
+      jsonStr = jsonStr.slice(7);
+    } else if (jsonStr.startsWith('```')) {
+      jsonStr = jsonStr.slice(3);
+    }
+    if (jsonStr.endsWith('```')) {
+      jsonStr = jsonStr.slice(0, -3);
+    }
+    jsonStr = jsonStr.trim();
+
+    const updated = JSON.parse(jsonStr);
+
+    // Defensive merge: start with current profile, overlay with updates
+    // This ensures we don't accidentally lose fields the model omitted
+    const merged = { ...currentProfile };
+    for (const [key, value] of Object.entries(updated)) {
+      // Only update if the model returned a non-null value for this field
+      if (value !== null && value !== undefined) {
+        (merged as Record<string, unknown>)[key] = value;
+      }
+    }
+    return merged;
+  } catch (e) {
+    console.warn('Failed to parse update JSON:', e);
+    console.warn('Raw response:', response.content);
+    return currentProfile;
+  }
 }

@@ -17,6 +17,13 @@ interface Message {
 
 type BuilderState = 'interviewing' | 'generating' | 'complete';
 
+// Extraction queue item - contains the latest turn for incremental update
+interface ExtractionTask {
+  latestUserMessage: string;
+  latestAssistantResponse: string;
+  documents?: Array<{ filename: string; content: string }>;
+}
+
 export default function BuilderPage() {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -26,9 +33,12 @@ export default function BuilderPage() {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isExtracting, setIsExtracting] = useState(false);
   const [state, setState] = useState<BuilderState>('interviewing');
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [processedFileNames, setProcessedFileNames] = useState<string[]>([]);
+  // Store documents (base64) to send with every chat request
+  const [storedDocuments, setStoredDocuments] = useState<Array<{ filename: string; content: string }>>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [profile, setProfile] = useState<BuilderProfile>({});
 
@@ -38,6 +48,13 @@ export default function BuilderPage() {
 
   // PDF state
   const [generatedPdfUrl, setGeneratedPdfUrl] = useState<string | null>(null);
+
+  // Extraction queue
+  const extractionQueueRef = useRef<ExtractionTask[]>([]);
+  const isProcessingExtractionRef = useRef(false);
+  // Track latest profile for extraction (avoid stale closure)
+  const profileRef = useRef<BuilderProfile>(profile);
+  profileRef.current = profile;
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -79,6 +96,65 @@ export default function BuilderPage() {
     });
   }, []);
 
+  // Process extraction queue - runs extractions sequentially
+  const processExtractionQueue = useCallback(async () => {
+    if (isProcessingExtractionRef.current) return;
+    if (extractionQueueRef.current.length === 0) {
+      setIsExtracting(false);
+      return;
+    }
+
+    isProcessingExtractionRef.current = true;
+    setIsExtracting(true);
+
+    while (extractionQueueRef.current.length > 0) {
+      const task = extractionQueueRef.current.shift()!;
+
+      try {
+        // Use latest profile from ref for incremental update
+        const response = await fetch('/api/chat/builder/extract', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            currentProfile: profileRef.current,
+            latestUserMessage: task.latestUserMessage,
+            latestAssistantResponse: task.latestAssistantResponse,
+            documents: task.documents,
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.profile) {
+            setProfile(data.profile);
+          }
+        } else {
+          console.error('Profile update failed:', await response.text());
+        }
+      } catch (error) {
+        console.error('Profile update error:', error);
+      }
+    }
+
+    isProcessingExtractionRef.current = false;
+    setIsExtracting(false);
+  }, []);
+
+  // Queue an extraction task with the latest turn
+  const queueExtraction = useCallback((
+    latestUserMessage: string,
+    latestAssistantResponse: string,
+    documents?: Array<{ filename: string; content: string }>
+  ) => {
+    extractionQueueRef.current.push({
+      latestUserMessage,
+      latestAssistantResponse,
+      documents,
+    });
+    // Start processing if not already running
+    processExtractionQueue();
+  }, [processExtractionQueue]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
@@ -88,6 +164,9 @@ export default function BuilderPage() {
     setMessages((prev) => [...prev, { role: 'user', content: userMessage }]);
     setIsLoading(true);
 
+    // Track conversation ID for extraction
+    let currentConvId = conversationId;
+
     try {
       const response = await fetch('/api/chat/builder', {
         method: 'POST',
@@ -95,6 +174,8 @@ export default function BuilderPage() {
         body: JSON.stringify({
           conversationId,
           message: userMessage,
+          // Send all stored documents with every request for conversation context
+          documents: storedDocuments.length > 0 ? storedDocuments : undefined,
         }),
       });
 
@@ -126,6 +207,7 @@ export default function BuilderPage() {
               const data = JSON.parse(line.slice(6));
 
               if (data.type === 'conversationId') {
+                currentConvId = data.conversationId;
                 setConversationId(data.conversationId);
               } else if (data.type === 'text') {
                 assistantMessage += data.content;
@@ -137,16 +219,15 @@ export default function BuilderPage() {
                   };
                   return updated;
                 });
-              } else if (data.type === 'text_complete') {
-                setIsLoading(false);
               } else if (data.type === 'state') {
                 setState(data.state);
-              } else if (data.type === 'profile') {
-                setProfile(data.profile);
               } else if (data.type === 'done') {
                 if (data.state) setState(data.state);
-                if (data.profile) setProfile(data.profile);
                 setIsLoading(false);
+                // Queue extraction after chat completes with latest turn
+                if (assistantMessage) {
+                  queueExtraction(userMessage, assistantMessage);
+                }
               } else if (data.type === 'error') {
                 throw new Error(data.error);
               }
@@ -186,12 +267,17 @@ export default function BuilderPage() {
     newFiles.forEach(f => processingFilesRef.current.add(f.name));
     setIsLoading(true);
 
+    // Track conversation ID and documents for extraction
+    let currentConvId = conversationId;
+    let uploadedDocuments: Array<{ filename: string; content: string }> = [];
+
     try {
       const documents: Array<{ filename: string; content: string }> = [];
       for (const file of newFiles) {
         const base64 = await fileToBase64(file);
         documents.push({ filename: file.name, content: base64 });
       }
+      uploadedDocuments = documents;
 
       const fileNames = newFiles.map(f => f.name).join(', ');
       const userMessage = newFiles.length === 1
@@ -238,6 +324,7 @@ export default function BuilderPage() {
               const data = JSON.parse(line.slice(6));
 
               if (data.type === 'conversationId') {
+                currentConvId = data.conversationId;
                 setConversationId(data.conversationId);
               } else if (data.type === 'text') {
                 assistantMessage += data.content;
@@ -249,16 +336,15 @@ export default function BuilderPage() {
                   };
                   return updated;
                 });
-              } else if (data.type === 'text_complete') {
-                setIsLoading(false);
               } else if (data.type === 'state') {
                 setState(data.state);
-              } else if (data.type === 'profile') {
-                setProfile(data.profile);
               } else if (data.type === 'done') {
                 if (data.state) setState(data.state);
-                if (data.profile) setProfile(data.profile);
                 setIsLoading(false);
+                // Queue extraction after chat completes with latest turn and documents
+                if (assistantMessage) {
+                  queueExtraction(userMessage, assistantMessage, uploadedDocuments);
+                }
               } else if (data.type === 'error') {
                 throw new Error(data.error);
               }
@@ -271,6 +357,8 @@ export default function BuilderPage() {
 
       setProcessedFileNames((prev) => [...prev, ...newFiles.map(f => f.name)]);
       setUploadedFiles((prev) => prev.filter(f => !newFiles.includes(f)));
+      // Store documents (base64) to send with every subsequent chat request
+      setStoredDocuments((prev) => [...prev, ...uploadedDocuments]);
       // Note: Don't delete from processingFilesRef - it prevents race conditions
       // where useEffect re-runs before state updates are applied
     } catch (error) {
@@ -293,7 +381,7 @@ export default function BuilderPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [conversationId, fileToBase64]);
+  }, [conversationId, fileToBase64, queueExtraction]);
 
   // Process pending files when loading completes
   useEffect(() => {
@@ -382,7 +470,7 @@ export default function BuilderPage() {
       }
     } catch (error) {
       console.error('PDF generation error:', error);
-      setState('headshot');
+      setState('interviewing');
       setMessages((prev) => [
         ...prev,
         {
@@ -413,12 +501,15 @@ export default function BuilderPage() {
     ]);
     setUploadedFiles([]);
     setProcessedFileNames([]);
+    setStoredDocuments([]);
     processingFilesRef.current.clear();
+    extractionQueueRef.current = [];
     setState('interviewing');
     setConversationId(null);
     setProfile({});
     setHeadshot(null);
     setGeneratedPdfUrl(null);
+    setIsExtracting(false);
   };
 
   return (
@@ -452,6 +543,11 @@ export default function BuilderPage() {
           </div>
           <div className="flex items-center gap-2">
             <Badge variant="outline">{getStateLabel()}</Badge>
+            {isExtracting && (
+              <Badge variant="secondary" className="text-xs animate-pulse">
+                Updating card...
+              </Badge>
+            )}
             {processedFileNames.length > 0 && (
               <Badge variant="secondary" className="text-xs">
                 {processedFileNames.length} doc{processedFileNames.length !== 1 ? 's' : ''}

@@ -6,7 +6,7 @@ import {
   addMessageToConversation,
 } from '@/lib/db';
 import {
-  processBuilderMessageStream,
+  processBuilderChatStream,
   BuilderContext,
   BuilderProfile,
   BuilderState,
@@ -118,11 +118,11 @@ export async function POST(request: NextRequest) {
             encoder.encode(`data: ${JSON.stringify({ type: 'conversationId', conversationId: finalConvId })}\n\n`)
           );
 
-          let finalContext: BuilderContext | null = null;
-          let cleanResponse = '';
+          let finalState: BuilderState = context!.state;
+          let fullResponse = '';
 
-          // Stream the response
-          for await (const chunk of processBuilderMessageStream(
+          // Stream the response (chat only - no JSON extraction)
+          for await (const chunk of processBuilderChatStream(
             message,
             conversation!.messages.slice(0, -1),
             context!,
@@ -133,46 +133,43 @@ export async function POST(request: NextRequest) {
                 encoder.encode(`data: ${JSON.stringify({ type: 'text', content: chunk.content })}\n\n`)
               );
             } else if (chunk.type === 'done') {
-              finalContext = chunk.context;
-              cleanResponse = chunk.cleanResponse;
+              finalState = chunk.state;
+              fullResponse = chunk.response;
             }
           }
 
-          if (finalContext) {
-            // Send state update
-            controller.enqueue(
-              encoder.encode(`data: ${JSON.stringify({ type: 'state', state: finalContext.state })}\n\n`)
-            );
+          // Send state update
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify({ type: 'state', state: finalState })}\n\n`)
+          );
 
-            // Send profile update
-            controller.enqueue(
-              encoder.encode(`data: ${JSON.stringify({ type: 'profile', profile: finalContext.profile })}\n\n`)
-            );
-
-            // Send done signal
-            controller.enqueue(
-              encoder.encode(`data: ${JSON.stringify({
-                type: 'done',
-                state: finalContext.state,
-                profile: finalContext.profile
-              })}\n\n`)
-            );
-          }
+          // Send done signal (no profile - client will call /extract separately)
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify({
+              type: 'done',
+              state: finalState
+            })}\n\n`)
+          );
 
           // Close stream IMMEDIATELY so client can proceed
           // This is critical - the browser waits for stream close before processing final events
           controller.close();
 
           // Do DB operations AFTER closing stream (non-blocking for user)
-          if (finalContext) {
-            builderContexts.set(finalConvId, finalContext);
-            const assistantMessage: ConversationMessage = {
-              role: 'assistant',
-              content: cleanResponse,
-              timestamp: new Date().toISOString(),
-            };
-            addMessageToConversation(finalConvId, assistantMessage);
-          }
+          // Update context state (keep existing profile)
+          const updatedContext: BuilderContext = {
+            ...context!,
+            state: finalState,
+            extractedFromDocuments: context!.extractedFromDocuments || !!(builderDocuments && builderDocuments.length > 0),
+          };
+          builderContexts.set(finalConvId, updatedContext);
+
+          const assistantMessage: ConversationMessage = {
+            role: 'assistant',
+            content: fullResponse,
+            timestamp: new Date().toISOString(),
+          };
+          addMessageToConversation(finalConvId, assistantMessage);
         } catch (error) {
           console.error('Builder streaming error:', error);
           const errorMessage = error instanceof Error ? error.message : 'Unknown error';
