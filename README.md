@@ -163,14 +163,18 @@ docker run -p 3000:3000 \
 
 ## Technology Stack
 
-- **Frontend**: Next.js 14, React, Tailwind CSS, shadcn/ui
-- **Backend**: Next.js API Routes
-- **Database**: SQLite with sqlite-vec for vector search
-- **AI/ML**:
-  - Claude claude-opus-4-5 via Azure AI Foundry (reasoning and conversation)
-  - Azure OpenAI text-embedding-3-small (embeddings)
-  - Google Gemini 3 Pro Image Preview (headshot generation)
-- **PDF**: Python pypdf + PyMuPDF
+| Layer | Technology |
+|-------|-----------|
+| **Framework** | Next.js 16.1 (App Router, Turbopack) |
+| **Frontend** | React 19, TypeScript 5, Tailwind CSS 4, shadcn/ui (Radix UI) |
+| **Backend** | Next.js API Routes with SSE streaming |
+| **Database** | SQLite via better-sqlite3, sqlite-vec for vector similarity search (1536-dim) |
+| **LLM** | Claude Opus 4.5 via Azure AI Foundry |
+| **Embeddings** | Azure OpenAI text-embedding-3-small |
+| **Image Generation** | Google Gemini 3 Pro Image Preview (professional headshots) |
+| **PDF Generation** | Python 3.9+ with pypdf and PyMuPDF (subprocess) |
+| **Markdown** | react-markdown with remark-gfm (tables, formatting) |
+| **Deployment** | Docker with standalone Next.js output |
 
 ## Usage
 
