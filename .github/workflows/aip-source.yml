@@ -1,10 +1,10 @@
 name: AIP source checks
 on:
   pull_request:
-    paths: ['aip/**', '.github/workflows/aip-source.yml']
+    paths: ['aip/**', '.github/workflows/aip-*.yml']
   push:
     branches: [main]
-    paths: ['aip/**', '.github/workflows/aip-source.yml']
+    paths: ['aip/**', '.github/workflows/aip-*.yml']
 permissions:
   contents: read
 jobs:
