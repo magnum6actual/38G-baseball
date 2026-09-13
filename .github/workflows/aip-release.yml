@@ -1,0 +1,53 @@
+name: Publish AIP source release
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing source release tag (vMAJOR.MINOR.PATCH)
+        required: true
+        default: v0.1.0
+permissions:
+  contents: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      RELEASE_TAG: ${{ inputs.tag }}
+    steps:
+      - name: Validate tag format
+        run: '[[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]'
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ inputs.tag }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.18.0'
+      - name: Build source package from the tag
+        run: python3 aip/package-source.py
+      - name: Verify manifest
+        working-directory: aip/delivery/38g-talent-source
+        run: sha256sum -c MANIFEST.sha256
+      - name: Install and validate application
+        working-directory: aip/delivery/38g-talent-source/app
+        run: |
+          npm ci --ignore-scripts
+          npm run typecheck
+          npm run lint
+          npm test
+          npm run build
+        env:
+          VITE_FOUNDRY_API_URL: https://enrollment.test.invalid
+          VITE_FOUNDRY_ONTOLOGY_RID: ri.ontology.main.ontology.source-test
+          VITE_FOUNDRY_CLIENT_ID: source-test-client
+          VITE_FOUNDRY_REDIRECT_URL: https://app.test.invalid/auth/callback
+          VITE_USE_MOCK_AUTH: 'false'
+      - name: Attach verified source and publish existing release
+        working-directory: aip/delivery
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sha256sum 38g-talent-source.zip > SHA256SUMS
+          gh release upload "$RELEASE_TAG" 38g-talent-source.zip SHA256SUMS --clobber --repo "$GITHUB_REPOSITORY"
+          gh release edit "$RELEASE_TAG" --draft=false --repo "$GITHUB_REPOSITORY"
