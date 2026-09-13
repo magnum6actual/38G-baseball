@@ -1,0 +1,22 @@
+# nx cache
+.nx
+
+# development environments
+node_modules
+.pnpm-store
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.playwright-mcp
+
+# build artifacts
+build
+dist
+
+# palantir managed files
+.dev-server
+.palantir
+functions/typescript-functions/build/functions.json
+
+# MacOS Finder clutter
+.DS_Store

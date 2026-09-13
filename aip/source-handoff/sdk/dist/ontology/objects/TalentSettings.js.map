@@ -1,0 +1,1 @@
+{"version":3,"file":"TalentSettings.js","sourceRoot":"","sources":["../../../ontology/objects/TalentSettings.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,aAAa,EAAE,MAAM,2BAA2B,CAAC;AAkG1D,MAAM,CAAC,MAAM,cAAc,GAAG;IAC5B,IAAI,EAAE,QAAQ;IACd,OAAO,EAAE,oCAAoC;IAC7C,YAAY,EAAE,aAAa;IAC3B,iBAAiB,EAAE,IAAI;IACvB,cAAc,EAAE,QAAQ;IACxB,wBAAwB,EAAE;QACxB,GAAG,EAAE,mEAAmE;KACzE;CACyF,CAAC"}

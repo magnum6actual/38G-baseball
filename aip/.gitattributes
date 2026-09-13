@@ -1,0 +1,5 @@
+# Preserve binary fixture bytes (PDF xref records intentionally contain spaces).
+*.pdf binary
+*.doc binary
+*.docx binary
+*.woff2 binary

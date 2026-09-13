@@ -1,0 +1,662 @@
+{
+  "interfaceTypes": {},
+  "sharedPropertyTypes": {},
+  "objectTypes": {
+    "com.kinetiqs.talent.TalentOfficer": {
+      "objectType": {
+        "apiName": "com.kinetiqs.talent.TalentOfficer",
+        "displayName": "38G Officer",
+        "pluralDisplayName": "",
+        "primaryKey": "id",
+        "titleProperty": "name",
+        "icon": {
+          "type": "blueprint",
+          "color": "#2D72D2",
+          "name": "cube"
+        },
+        "status": "ACTIVE",
+        "properties": {
+          "id": {
+            "displayName": "Officer ID",
+            "rid": "ri.ontology.main.property.63e5d1a1-b2a6-5b7a-9efd-a4ebf46121e5",
+            "status": {
+              "type": "active"
+            },
+            "visibility": "NORMAL",
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "name": {
+            "displayName": "Name",
+            "rid": "ri.ontology.main.property.c56a7a1e-8ff7-5522-aa6d-0d892b194cf1",
+            "status": {
+              "type": "active"
+            },
+            "visibility": "NORMAL",
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "ownerUserId": {
+            "displayName": "Profile owner",
+            "rid": "ri.ontology.main.property.6d914d8a-3335-5d6c-a09d-d633d6243b75",
+            "status": {
+              "type": "active"
+            },
+            "visibility": "NORMAL",
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "rank": {
+            "displayName": "Rank",
+            "rid": "ri.ontology.main.property.6a2f8393-e850-56d3-8a5c-5a4375187659",
+            "status": {
+              "type": "active"
+            },
+            "visibility": "NORMAL",
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "unit": {
+            "displayName": "Unit",
+            "rid": "ri.ontology.main.property.9ceae0b9-3a7e-5a41-a8a7-93eaca4b92eb",
+            "status": {
+              "type": "active"
+            },
+            "visibility": "NORMAL",
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "specialty": {
+            "displayName": "Specialty",
+            "rid": "ri.ontology.main.property.e72b75da-a651-58e9-9e48-ca9ab137017d",
+            "status": {
+              "type": "active"
+            },
+            "visibility": "NORMAL",
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "civilianOccupation": {
+            "displayName": "CivilianOccupation",
+            "rid": "ri.ontology.main.property.eb68691f-c515-5d53-b1b2-9eaaffe3ab1c",
+            "status": {
+              "type": "active"
+            },
+            "visibility": "NORMAL",
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "skills": {
+            "displayName": "Skills",
+            "rid": "ri.ontology.main.property.b8f59c90-67ee-5024-bece-7feb76811b84",
+            "status": {
+              "type": "active"
+            },
+            "visibility": "NORMAL",
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "languages": {
+            "displayName": "Languages",
+            "rid": "ri.ontology.main.property.d0006fc5-9833-5b8d-8b85-5beea6a9b968",
+            "status": {
+              "type": "active"
+            },
+            "visibility": "NORMAL",
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "clearance": {
+            "displayName": "Clearance",
+            "rid": "ri.ontology.main.property.36179e06-18f9-5ce0-b513-b60f1c93fb69",
+            "status": {
+              "type": "active"
+            },
+            "visibility": "NORMAL",
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "narrative": {
+            "displayName": "Narrative",
+            "rid": "ri.ontology.main.property.e3f734ad-c98c-5176-aa9d-3e6f9d91d383",
+            "status": {
+              "type": "active"
+            },
+            "visibility": "NORMAL",
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "profileJson": {
+            "displayName": "Full profile",
+            "rid": "ri.ontology.main.property.1af3938c-48f4-5e5d-aa51-d87a88c1f9ff",
+            "status": {
+              "type": "active"
+            },
+            "visibility": "NORMAL",
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "searchableText": {
+            "displayName": "Searchable profile",
+            "rid": "ri.ontology.main.property.afdc75b5-bf23-5a01-9d99-8462ba138c61",
+            "status": {
+              "type": "active"
+            },
+            "visibility": "NORMAL",
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          }
+        },
+        "rid": "ri.ontology.main.object-type.f6b5bdc0-d4fe-560d-88b7-9b1f58606734",
+        "aliases": [],
+        "datasources": []
+      },
+      "implementsInterfaces": [],
+      "implementsInterfaces2": {},
+      "sharedPropertyTypeMapping": {},
+      "linkTypes": []
+    },
+    "com.kinetiqs.talent.TalentSettings": {
+      "objectType": {
+        "apiName": "com.kinetiqs.talent.TalentSettings",
+        "displayName": "Talent Search Settings",
+        "pluralDisplayName": "",
+        "primaryKey": "id",
+        "titleProperty": "id",
+        "icon": {
+          "type": "blueprint",
+          "color": "#2D72D2",
+          "name": "cube"
+        },
+        "status": "ACTIVE",
+        "properties": {
+          "id": {
+            "displayName": "Id",
+            "rid": "ri.ontology.main.property.1b4b29b6-3d51-595b-82de-32bbe72e7345",
+            "status": {
+              "type": "active"
+            },
+            "visibility": "NORMAL",
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "model": {
+            "displayName": "Destination AIP model",
+            "rid": "ri.ontology.main.property.1553ee95-99e0-58d0-8a02-83db6e007b57",
+            "status": {
+              "type": "active"
+            },
+            "visibility": "NORMAL",
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          }
+        },
+        "rid": "ri.ontology.main.object-type.ce39c634-16d0-5bf1-a710-317f2ec1b2c1",
+        "aliases": [],
+        "datasources": []
+      },
+      "implementsInterfaces": [],
+      "implementsInterfaces2": {},
+      "sharedPropertyTypeMapping": {},
+      "linkTypes": []
+    }
+  },
+  "queryTypes": {},
+  "actionTypes": {
+    "com.kinetiqs.talent.create-talent-officer": {
+      "actionType": {
+        "rid": "ri.ontology-metadata.temp.action-type.de9f1cf9b886831b553560c926021c0e83cdba959059b7c669214b3c78a05808",
+        "apiName": "com.kinetiqs.talent.create-talent-officer",
+        "displayName": "Create officer profile",
+        "description": "",
+        "parameters": {
+          "id": {
+            "displayName": "Officer ID",
+            "description": "",
+            "required": true,
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "name": {
+            "displayName": "Name",
+            "description": "",
+            "required": true,
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "rank": {
+            "displayName": "Rank",
+            "description": "",
+            "required": false,
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "unit": {
+            "displayName": "Unit",
+            "description": "",
+            "required": false,
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "specialty": {
+            "displayName": "Specialty",
+            "description": "",
+            "required": false,
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "civilianOccupation": {
+            "displayName": "CivilianOccupation",
+            "description": "",
+            "required": false,
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "skills": {
+            "displayName": "Skills",
+            "description": "",
+            "required": false,
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "languages": {
+            "displayName": "Languages",
+            "description": "",
+            "required": false,
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "clearance": {
+            "displayName": "Clearance",
+            "description": "",
+            "required": false,
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "narrative": {
+            "displayName": "Narrative",
+            "description": "",
+            "required": false,
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "profileJson": {
+            "displayName": "Full profile",
+            "description": "",
+            "required": false,
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "searchableText": {
+            "displayName": "Searchable profile",
+            "description": "",
+            "required": false,
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          }
+        },
+        "operations": [
+          {
+            "type": "createObject",
+            "objectTypeApiName": "com.kinetiqs.talent.TalentOfficer"
+          }
+        ],
+        "status": "ACTIVE"
+      },
+      "fullLogicRules": [
+        {
+          "type": "createObject",
+          "objectTypeApiName": "com.kinetiqs.talent.TalentOfficer",
+          "propertyArguments": {
+            "id": {
+              "type": "parameterId",
+              "parameterId": "id"
+            },
+            "name": {
+              "type": "parameterId",
+              "parameterId": "name"
+            },
+            "rank": {
+              "type": "parameterId",
+              "parameterId": "rank"
+            },
+            "unit": {
+              "type": "parameterId",
+              "parameterId": "unit"
+            },
+            "specialty": {
+              "type": "parameterId",
+              "parameterId": "specialty"
+            },
+            "civilianOccupation": {
+              "type": "parameterId",
+              "parameterId": "civilianOccupation"
+            },
+            "skills": {
+              "type": "parameterId",
+              "parameterId": "skills"
+            },
+            "languages": {
+              "type": "parameterId",
+              "parameterId": "languages"
+            },
+            "clearance": {
+              "type": "parameterId",
+              "parameterId": "clearance"
+            },
+            "narrative": {
+              "type": "parameterId",
+              "parameterId": "narrative"
+            },
+            "profileJson": {
+              "type": "parameterId",
+              "parameterId": "profileJson"
+            },
+            "searchableText": {
+              "type": "parameterId",
+              "parameterId": "searchableText"
+            },
+            "ownerUserId": {
+              "type": "currentUser",
+              "currentUser": {}
+            }
+          },
+          "structPropertyArguments": {}
+        }
+      ]
+    },
+    "com.kinetiqs.talent.modify-talent-officer": {
+      "actionType": {
+        "rid": "ri.ontology-metadata.temp.action-type.ff23027a5b6fa19d7aeca932b21802f73e685158ee7a23e745c18724fe109593",
+        "apiName": "com.kinetiqs.talent.modify-talent-officer",
+        "displayName": "Update officer profile",
+        "description": "",
+        "parameters": {
+          "objectToModifyParameter": {
+            "displayName": "Modify object",
+            "description": "",
+            "required": true,
+            "dataType": {
+              "type": "object",
+              "objectTypeApiName": "com.kinetiqs.talent.TalentOfficer",
+              "objectApiName": "com.kinetiqs.talent.TalentOfficer"
+            },
+            "typeClasses": []
+          },
+          "name": {
+            "displayName": "Name",
+            "description": "",
+            "required": true,
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "rank": {
+            "displayName": "Rank",
+            "description": "",
+            "required": false,
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "unit": {
+            "displayName": "Unit",
+            "description": "",
+            "required": false,
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "specialty": {
+            "displayName": "Specialty",
+            "description": "",
+            "required": false,
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "civilianOccupation": {
+            "displayName": "CivilianOccupation",
+            "description": "",
+            "required": false,
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "skills": {
+            "displayName": "Skills",
+            "description": "",
+            "required": false,
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "languages": {
+            "displayName": "Languages",
+            "description": "",
+            "required": false,
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "clearance": {
+            "displayName": "Clearance",
+            "description": "",
+            "required": false,
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "narrative": {
+            "displayName": "Narrative",
+            "description": "",
+            "required": false,
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "profileJson": {
+            "displayName": "Full profile",
+            "description": "",
+            "required": false,
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "searchableText": {
+            "displayName": "Searchable profile",
+            "description": "",
+            "required": false,
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          }
+        },
+        "operations": [
+          {
+            "type": "modifyObject",
+            "objectTypeApiName": "com.kinetiqs.talent.TalentOfficer"
+          }
+        ],
+        "status": "ACTIVE"
+      },
+      "fullLogicRules": [
+        {
+          "type": "modifyObject",
+          "objectToModify": "objectToModifyParameter",
+          "propertyArguments": {
+            "name": {
+              "type": "parameterId",
+              "parameterId": "name"
+            },
+            "rank": {
+              "type": "parameterId",
+              "parameterId": "rank"
+            },
+            "unit": {
+              "type": "parameterId",
+              "parameterId": "unit"
+            },
+            "specialty": {
+              "type": "parameterId",
+              "parameterId": "specialty"
+            },
+            "civilianOccupation": {
+              "type": "parameterId",
+              "parameterId": "civilianOccupation"
+            },
+            "skills": {
+              "type": "parameterId",
+              "parameterId": "skills"
+            },
+            "languages": {
+              "type": "parameterId",
+              "parameterId": "languages"
+            },
+            "clearance": {
+              "type": "parameterId",
+              "parameterId": "clearance"
+            },
+            "narrative": {
+              "type": "parameterId",
+              "parameterId": "narrative"
+            },
+            "profileJson": {
+              "type": "parameterId",
+              "parameterId": "profileJson"
+            },
+            "searchableText": {
+              "type": "parameterId",
+              "parameterId": "searchableText"
+            }
+          },
+          "structPropertyArguments": {}
+        }
+      ]
+    },
+    "com.kinetiqs.talent.create-talent-settings": {
+      "actionType": {
+        "rid": "ri.ontology-metadata.temp.action-type.b19029e4b06e2acf4e8268caefc9960ca1ba2901d4bffb750929bb900f3140ce",
+        "apiName": "com.kinetiqs.talent.create-talent-settings",
+        "displayName": "Configure talent search model",
+        "description": "",
+        "parameters": {
+          "id": {
+            "displayName": "Id",
+            "description": "",
+            "required": false,
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          },
+          "model": {
+            "displayName": "Destination AIP model",
+            "description": "",
+            "required": false,
+            "dataType": {
+              "type": "string"
+            },
+            "typeClasses": []
+          }
+        },
+        "operations": [
+          {
+            "type": "createObject",
+            "objectTypeApiName": "com.kinetiqs.talent.TalentSettings"
+          }
+        ],
+        "status": "ACTIVE"
+      },
+      "fullLogicRules": [
+        {
+          "type": "createObject",
+          "objectTypeApiName": "com.kinetiqs.talent.TalentSettings",
+          "propertyArguments": {
+            "id": {
+              "type": "parameterId",
+              "parameterId": "id"
+            },
+            "model": {
+              "type": "parameterId",
+              "parameterId": "model"
+            }
+          },
+          "structPropertyArguments": {}
+        }
+      ]
+    }
+  },
+  "ontology": {
+    "apiName": "ontology",
+    "rid": "ri.ontology.main.ontology.0",
+    "displayName": "ontology",
+    "description": "local ontology"
+  },
+  "valueTypes": {}
+}

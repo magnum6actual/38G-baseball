@@ -1,0 +1,38 @@
+name: AIP source checks
+on:
+  pull_request:
+    paths: ['aip/**', '.github/workflows/aip-source.yml']
+  push:
+    branches: [main]
+    paths: ['aip/**', '.github/workflows/aip-source.yml']
+permissions:
+  contents: read
+jobs:
+  source-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.18.0'
+      - name: Package from a clean checkout
+        run: python3 aip/package-source.py
+      - name: Verify source manifest
+        working-directory: aip/delivery/38g-talent-source
+        run: sha256sum -c MANIFEST.sha256
+      - name: Install locked dependencies
+        working-directory: aip/delivery/38g-talent-source/app
+        run: npm ci --ignore-scripts
+      - name: Check application
+        working-directory: aip/delivery/38g-talent-source/app
+        run: |
+          npm run typecheck
+          npm run lint
+          npm test
+          npm run build
+        env:
+          VITE_FOUNDRY_API_URL: https://enrollment.test.invalid
+          VITE_FOUNDRY_ONTOLOGY_RID: ri.ontology.main.ontology.source-test
+          VITE_FOUNDRY_CLIENT_ID: source-test-client
+          VITE_FOUNDRY_REDIRECT_URL: https://app.test.invalid/auth/callback
+          VITE_USE_MOCK_AUTH: 'false'
