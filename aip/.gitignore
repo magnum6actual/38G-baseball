@@ -1,0 +1,18 @@
+# Rebuilt artifacts and local browser evidence
+/delivery/
+/evidence/
+/tests/
+# Superseded enrollment-specific deployment notes
+/DEPLOYMENT_STATUS.md
+/PALANTIR_SUPPORT_DRAFT.md
+# Developer enrollment / Marketplace configuration is not source delivery.
+/platform/env.yml
+/platform/foundry.yml
+/platform/ci.yml
+/platform/.npmrc.foundry
+/platform/pnpm-lock.yaml
+/platform/ontology/external-imports/
+
+# Demo seed is materialized from versioned text records and original photos.
+/platform/ontology/seed/001-officers.mts
+__pycache__/

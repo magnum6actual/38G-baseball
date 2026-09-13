@@ -1,0 +1,57 @@
+{
+  "name": "app",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "{projectRoot}/src",
+  "projectType": "application",
+  "tags": [
+    "type:frontend"
+  ],
+  "targets": {
+    "dev": {
+      "executor": "nx:run-commands",
+      "dependsOn": [
+        "38g-talent-search:install-js",
+        "ontology:dev",
+        "38g-talent-search:await-services"
+      ],
+      "options": {
+        "command": "pnpm run dev",
+        "cwd": "{projectRoot}"
+      },
+      "configurations": {
+        "windows": {
+          "command": "pnpm run dev",
+          "cwd": "{projectRoot}"
+        }
+      },
+      "continuous": true
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "dependsOn": [
+        "38g-talent-search:install-js",
+        "ontology:build"
+      ],
+      "options": {
+        "commands": [
+          "pnpm run build",
+          "foundry build website --application-name '38g-talent-search-app' --application-description '' --package-name '38g-talent-search-app'"
+        ],
+        "cwd": "{projectRoot}",
+        "parallel": false
+      }
+    },
+    "dry-run-build": {
+      "executor": "nx:run-commands",
+      "dependsOn": [
+        "38g-talent-search:install",
+        "ontology:build"
+      ],
+      "options": {
+        "command": "foundry build website --application-name '38g-talent-search-app' --application-description '' --package-name '38g-talent-search-app' --dry-run",
+        "cwd": "{projectRoot}",
+        "parallel": false
+      }
+    }
+  }
+}

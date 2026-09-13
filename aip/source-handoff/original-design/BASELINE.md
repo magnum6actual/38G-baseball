@@ -1,0 +1,1 @@
+Reference source from the existing project working tree. Layout, stylesheet, and baseball-card component match the latest original Git revision a9c02bb; search additionally includes the existing mobile results-tab improvements. These files are references only. The port adapts backend connections without replacing the UI.

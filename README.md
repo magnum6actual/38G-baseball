@@ -2,6 +2,18 @@
 
 Military Government Specialist (38G) talent discovery and profile management system. Enables commanders to find specialists through natural language search and allows officers to create their "baseball card" profiles through an AI-guided interview.
 
+## AIP source release
+
+The current release ports the original interface to Foundry Ontology and AIP, with user-ID ownership, complete search references and existing headshots, and printable HTML cards. It is delivered as source for installation by the destination AIP agent; no Marketplace or signing certificate is required.
+
+- Download `38g-talent-source.zip` from [GitHub Releases](https://github.com/magnum6actual/38G-baseball/releases).
+- Begin with [the AIP agent prompt](aip/source-handoff/AIP_AGENT_PROMPT.md) and [installation guide](aip/source-handoff/INSTALL.md).
+- Build the ZIP from a clean checkout with `python3 aip/package-source.py`; then run `npm ci`, `npm run typecheck`, `npm run lint`, and `npm test` in `aip/delivery/38g-talent-source/app`. Configure the destination values from `.env.example` before `npm run build`.
+- The optional demo roster includes 20 fictional profiles and their existing generated headshots. It is not a production Army roster.
+- See [verification and destination acceptance](aip/source-handoff/VERIFICATION.md). Local checks are complete; Army installation and two-user Action enforcement remain destination acceptance items.
+
+The sections below describe the **historical Next.js/Azure/SQLite application**, retained as the original design reference. Its infrastructure and PDF/headshot-generation services are not dependencies of the AIP source release.
+
 ## Current Status
 
 **Working:**

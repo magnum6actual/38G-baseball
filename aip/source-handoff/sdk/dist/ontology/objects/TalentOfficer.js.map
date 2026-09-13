@@ -1,0 +1,1 @@
+{"version":3,"file":"TalentOfficer.js","sourceRoot":"","sources":["../../../ontology/objects/TalentOfficer.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,aAAa,EAAE,MAAM,2BAA2B,CAAC;AAmP1D,MAAM,CAAC,MAAM,aAAa,GAAG;IAC3B,IAAI,EAAE,QAAQ;IACd,OAAO,EAAE,mCAAmC;IAC5C,YAAY,EAAE,aAAa;IAC3B,iBAAiB,EAAE,IAAI;IACvB,cAAc,EAAE,QAAQ;IACxB,wBAAwB,EAAE;QACxB,GAAG,EAAE,mEAAmE;KACzE;CACuF,CAAC"}

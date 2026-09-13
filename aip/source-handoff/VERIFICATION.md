@@ -1,0 +1,34 @@
+# Verification and destination acceptance
+
+## Verified during the source port
+
+- The original Next.js search screen and the port were both rendered in Chrome at the same viewport. The restored search panels, spacing, typography, and controls match the original layout. The added identity label and development-only footer are intentional. An initially missing Tailwind utility stylesheet was fixed and visually rechecked; source similarity alone was not used as rendering proof.
+- Original black/gold styling, chat/results panels, Markdown, primary/alternative result sections, detail dialog, builder split view, editable card fields and structured tables are present in the port.
+- Live current-user lookup identified the developer in the Kinetiqs enrollment.
+- Live AIP search on 20 fictional officers streamed its answer. After a reported mismatch between the answer and its separate metadata lists, the port was changed to derive sidebar identities and tiers from references embedded in the answer itself. Full names, first/last names and unique surnames are checked against the roster; incomplete references trigger one annotation-repair attempt and otherwise fail visibly. The reported six-officer answer is a regression fixture: three core officers and three alternatives must all appear once, in order. A new live irrigation-assessment search produced three primary and three additional references matching its answer. All six sidebar headshots loaded, and all six cards opened the corresponding detail dialog with the correct loaded photo.
+- A fictional DOCX résumé was uploaded through the builder. Live AIP interview and extraction populated the card, including distinct MOS code and specialty, passport expirations, deployments, experience, and separate language proficiency scores.
+- An extracted MOS code was edited directly on the card and committed with Enter. The downloaded standalone HTML preserved that manual edit, structured content, and passport information; it opened in Chrome with no external assets and its print stylesheet applied without horizontal overflow.
+- Browser document-parser checks extracted the expected name, MOS code, and proficiency text from actual PDF, binary DOC, and DOCX fixtures. The binary DOC fixture was also exercised by the Node test suite.
+- The original 20 fictional preview photos were restored byte-for-byte from the legacy database. Optional demo-data/ includes those same fictional records and photos; deployment instructions explicitly preserve photo blobs when migrating real records. No photo manipulation or generation was added.
+- TypeScript and ESLint checks pass. Fifteen targeted tests cover full-schema save mapping, malformed stored data, concurrent manual edits versus extraction, extraction validation, separate recommendation tiers, unknown officer IDs, streamed reference hiding, missing/name-mismatched references, image MIME and save/reopen preservation, fragmented UTF-8/SSE framing, incomplete streams, and binary Word input.
+
+- The standalone source package installed through npm, passed typecheck/lint/all fifteen tests, and built with plain Vite and destination-shaped test configuration outside the SuperRepo tooling. The final dependency audit reports zero known vulnerabilities. This is build evidence, not hosted enrollment evidence.
+
+## Required in the destination before calling it installed
+
+1. Open both `/search` and `/builder` through the hosted URL. Check the original layout at desktop width. At phone width, check Chat/Results switching, count badges, and new-result feedback. Compare against original-design/ rather than inventing a new design.
+2. Confirm Foundry login/current-user lookup. Confirm that user changes recreate the OSDK cache and discard prior-user drafts, documents, and conversations.
+3. With user A, build a card using a document and conversational refinements. Edit every field category directly in the preview. Save it and confirm the complete `profileJson` and `searchableText` contain MOS code, language scores, all dates, structured rows, and supplemental details.
+4. Reload and reopen A's saved card through My saved cards. Edit and save without creating a duplicate profile.
+5. With user B, search the roster as permitted. Confirm B cannot edit A's card through the UI or through a direct modify-Action call. Confirm B cannot provide or change `ownerUserId`. Check that an unowned imported profile cannot be claimed through ordinary app controls.
+6. Search for a mission, refine the request, ask about a previously recommended officer, and start a new search. Verify the complete transcript/context, streaming, Markdown, ranking/alternatives, dialog dismissal, and preserved results. Count every distinct officer named in the final answer and confirm each is in the correct sidebar group with the matching photo and detail dialog; test repeats, no matches and alternative-only answers. Test errors and no matches without losing the previous useful results.
+7. Upload TXT, Markdown, text-based PDF, DOC, and DOCX. Confirm processing indicators, extracted fields, and follow-up document context. Scanned PDFs without a text layer require OCR before upload; the app reports that limitation instead of inventing extracted text. Password-protected and unsupported older Word documents report an actionable error.
+8. Download and print the HTML card. Confirm original layout/tables/handling banner, all entered values, and any optional original photo. Open the downloaded file without network access. Test long content for clipping and page breaks; HTML printing need not reproduce the retired PDF generator's exact pagination.
+9. Confirm requests go only to this enrollment's services and the application host. Set the real destination AIP model, disable mock auth, and verify deployed OAuth callback, model access, and Action access.
+10. Test representative roster volume and multi-user data permissions. There is no 100-profile cutoff in the port. Large rosters use paginated reads and AIP batch reduction over visible profiles; production latency/cost and equivalence to the original vector ranking have not been benchmarked. The original Azure/SQLite vector backend is not shipped as a runtime dependency.
+
+## Honest limits of the current evidence
+
+A source build is not an Army installation. Hosted OAuth, direct website publication, save/reload through real destination Actions, two-user enforcement, production-scale retrieval, destination resource permissions, and Army operation have not been verified here. The original developer simulator does not provide the Action's authenticated-user context, so its publishing path reports that limitation while allowing draft editing and HTML preview export. No ownership rule was weakened to make local writes appear successful.
+
+No Marketplace registration, signing certificate, or Marketplace installation is required by this source delivery.

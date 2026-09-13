@@ -1,0 +1,1 @@
+{"version":3,"file":"modifyTalentOfficer.js","sourceRoot":"","sources":["../../../ontology/actions/modifyTalentOfficer.ts"],"names":[],"mappings":"AAQA,OAAO,EAAE,aAAa,EAAE,MAAM,2BAA2B,CAAC;AAqK1D,MAAM,CAAC,MAAM,mBAAmB,GAAwB;IACtD,OAAO,EAAE,yCAAyC;IAClD,IAAI,EAAE,QAAQ;IACd,kBAAkB,EAAE,2CAA2C;IAC/D,YAAY,EAAE,aAAa;CAC5B,CAAC"}

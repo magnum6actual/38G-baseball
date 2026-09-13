@@ -1,0 +1,32 @@
+{
+  "name": "ontology",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./UNSTABLE_DO_NOT_USE/ontology-metadata": {
+      "import": {
+        "types": "./UNSTABLE_DO_NOT_USE/ontology-metadata.d.mts",
+        "default": "./UNSTABLE_DO_NOT_USE/ontology-metadata.json"
+      },
+      "require": {
+        "types": "./UNSTABLE_DO_NOT_USE/ontology-metadata.d.cts",
+        "default": "./UNSTABLE_DO_NOT_USE/ontology-metadata.json"
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@osdk/client": "^2.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
